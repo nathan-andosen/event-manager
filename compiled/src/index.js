@@ -4,5 +4,5 @@ function __export(m) {
 }
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./event-manager"));
-__export(require("./on-event.decorator"));
+__export(require("./event-listener.decorator"));
 //# sourceMappingURL=index.js.map

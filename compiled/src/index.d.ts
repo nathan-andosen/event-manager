@@ -1,2 +1,2 @@
 export * from './event-manager';
-export * from './on-event.decorator';
+export * from './event-listener.decorator';

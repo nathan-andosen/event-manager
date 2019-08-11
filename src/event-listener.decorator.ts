@@ -1,5 +1,5 @@
 // Arguments passed to the EventListener decorator
-export interface IOnEventArgs {
+interface IEventListenerArgs {
   eventName: string;
   eventClass?: string;
   initFn?: string;
@@ -10,11 +10,11 @@ export interface IOnEventArgs {
 /**
  * Get the property name of the event class (class that emits the events)
  *
- * @param {IOnEventArgs} args
+ * @param {IEventListenerArgs} args
  * @param {*} classInstance
  * @returns {string}
  */
-function getClassPropertyName(args: IOnEventArgs, instance: any): string {
+function getClassPropertyName(args: IEventListenerArgs, instance: any): string {
   if (!args.eventClass) return null;
   const classKeys = Object.keys(instance);
   for (const key of classKeys) {
@@ -28,11 +28,11 @@ function getClassPropertyName(args: IOnEventArgs, instance: any): string {
 /**
  * Get the instance of the event class (class that emits the events)
  *
- * @param {IOnEventArgs} args
+ * @param {IEventListenerArgs} args
  * @param {*} classInstance
  * @returns {*}
  */
-function getEventClass(args: IOnEventArgs, classInstance: any): any {
+function getEventClass(args: IEventListenerArgs, classInstance: any): any {
   const propertyName = getClassPropertyName(args, classInstance);
   const instance = (propertyName) ? classInstance[propertyName] : classInstance;
   if (!instance.on) {
@@ -47,13 +47,13 @@ function getEventClass(args: IOnEventArgs, classInstance: any): any {
  * Listen to events that are fired from EventManager classes
  *
  * @export
- * @param {(string|IOnEventArgs)} arg1
+ * @param {(string|IEventListenerArgs)} arg1
  * @param {string} [arg2]
  * @returns
  */
-export function OnEvent (eventName: string, eventClass?: string): any;
-export function OnEvent (args: IOnEventArgs): any;
-export function OnEvent (arg1: string|IOnEventArgs, arg2?: string) {
+export function EventListener (eventName: string, eventClass?: string): any;
+export function EventListener (args: IEventListenerArgs): any;
+export function EventListener (arg1: string|IEventListenerArgs, arg2?: string) {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 
     if (typeof descriptor.value !== 'function') {

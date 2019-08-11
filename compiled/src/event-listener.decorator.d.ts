@@ -1,4 +1,4 @@
-export interface IEventListenerArgs {
+interface IEventListenerArgs {
     eventName: string;
     eventClass?: string;
     initFn?: string;
@@ -6,3 +6,4 @@ export interface IEventListenerArgs {
 }
 export declare function EventListener(eventName: string, eventClass?: string): any;
 export declare function EventListener(args: IEventListenerArgs): any;
+export {};

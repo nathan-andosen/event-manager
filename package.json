@@ -36,12 +36,17 @@
     "statements": 80,
     "functions": 80,
     "branches": 80,
+    "all": true,
     "include": [
-      "compiled/src/**/*.js"
+      "compiled/src/**"
+    ],
+    "exclude": [
+      "**/*.spec.js"
     ],
     "reporter": [
       "json",
-      "text-summary"
+      "text-summary",
+      "html"
     ]
   }
 }
