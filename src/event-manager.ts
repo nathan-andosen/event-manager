@@ -5,15 +5,21 @@ interface IEventData {
   onceOnlyEvent?: boolean;
 }
 
+// type for the next() function
 export type INextFn = () => { completed: (cb: () => void) => void };
 
 
 
+/**
+ * Manage events with emit, on and off methods.
+ *
+ * @export
+ * @class EventManager
+ */
 export class EventManager {
 
   // subscribed events
   private events: { [eventName: string]: IEventData[] } = {};
-
 
 
   /**
@@ -82,6 +88,15 @@ export class EventManager {
     });
   }
 
+
+  /**
+   * Unbind from an event
+   *
+   * @param {string} eventName
+   * @param {(data?: any, next?: INextFn) => void} fn
+   * @returns
+   * @memberof EventManager
+   */
   off(eventName: string, fn: (data?: any, next?: INextFn) => void) {
     if (!fn || !this.events[eventName]) return;
     for (let i = 0 ; i < this.events[eventName].length; i++) {
@@ -91,6 +106,15 @@ export class EventManager {
     }
   }
 
+
+  /**
+   * Unbind from all events.
+   *
+   * @param {string} [eventName] If set, only events with this name will be 
+   * unsubscribed.
+   * @returns
+   * @memberof EventManager
+   */
   offAll(eventName?: string) {
     if (eventName) return delete this.events[eventName];
     this.events = {};

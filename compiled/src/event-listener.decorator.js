@@ -37,8 +37,10 @@ function EventListener(arg1, arg2) {
         if (!descriptor || typeof descriptor.value !== 'function') {
             throw new Error('@EventListener: Decorator must be applied to a method');
         }
-        if (!arg1 || (typeof arg1 !== 'string' && arg1.constructor !== {}.constructor)) {
-            throw new Error('@EventListener: First argument must be of type string or IEventListenerArgs');
+        if (!arg1
+            || (typeof arg1 !== 'string' && arg1.constructor !== {}.constructor)) {
+            throw new Error('@EventListener: First argument must be of type string '
+                + 'or IEventListenerArgs');
         }
         var params = (typeof arg1 === 'string')
             ? { eventName: arg1, eventClass: arg2 } : __assign({}, arg1);
