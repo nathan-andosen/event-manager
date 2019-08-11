@@ -3,8 +3,23 @@
   "description": "Easily manager events in web applications, works great with Angular.",
   "main": "compiled/src/index.js",
   "types": "compiled/src/index.d.ts",
+  "keywords": [
+    "event",
+    "events",
+    "event emitter",
+    "publish",
+    "subscribe",
+    "event manager"
+  ],
+  "bugs": "https://github.com/nathan-andosen/event-manager/issues",
+  "homepage": "https://github.com/nathan-andosen/event-manager",
+  "license": "MIT",
+  "author": "Nathan Anderson",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nathan-andosen/event-manager"
+  },
   "version": "1.0.0",
-  "private": true,
   "dependencies": {},
   "devDependencies": {
     "@types/jasmine": "^3.3.12",
