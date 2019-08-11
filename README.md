@@ -8,7 +8,7 @@ Event manager is an easy way to manage events in a web applications. Its a basic
 
 * __Bind and unbind to events using a decorator__
   * Reduce code by automatically binding and unbinding to events with a method decorator
-  * Works great with Angular
+  * Works great with Angular components
 * __Run code after all event listeners have executed__
   * Easily run code after all event listeners have completed. Works with async event listeners as well
 * __Small & light weight__
@@ -27,29 +27,29 @@ import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
 
 ## __Methods / API__
 
-#### __.emit(eventName: string, data?: any)__
+#### __.emit (eventName: string, data?: any)__
 
-Emit an event
+Emit an event. The second parameter is the data that is passed to the listener function.
 
-#### __.on(eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any)__
+#### __.on (eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any)__
 
-Bind to an event
+Bind to an event. If the emitted event sends data, it will be the first parameter.
 
-#### __.once(eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any)__
+#### __.once (eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any)__
 
 Bind to an event once, the listener will only fire once.
 
-#### __.off(eventName: string, fn: (data?: any, next?: INextFn) => void)__
+#### __.off (eventName: string, fn: (data?: any, next?: INextFn) => void)__
 
 Unbind from an event.
 
-#### __.offAll(eventName?: string)__
+#### __.offAll (eventName?: string)__
 
 Unbind from all events. If you pass in an eventName, it will only unbind all listeners for that event.
 
 ### __@EventListener decorator__
 
-The _@EventListener_ decorator is a method decorator and is very useful in components like Angular components.
+The _@EventListener_ decorator is a method decorator and is very useful in Angular components, but can be used anywhere.
 
 __How it works:__
 
@@ -86,18 +86,16 @@ __One object argument:__
 * __destroyFn__ : _[Default = ngOnDestroy]_ The function that is fired when the component is destroyed. This is where unbinding from events will occur.
 
 
----
-
 ## __Use cases / Examples__
 
-### __Example 1__ : Listen to an event, emitted from a service inside an Angular component:
+### __Example 1__ : Listen to an event thats emitted from a service inside an Angular component:
 
 _In this example, we have a service that is injected into an Angular component, the service emits events, the component can bind to these events._
 
 ```typescript
 import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
 
-// our service
+// our service which extends EventManager
 export class UserService extends EventManager {
   userSignIn() {
     const userData = {};
@@ -106,9 +104,7 @@ export class UserService extends EventManager {
 }
 
 // our angular component
-@Component(
-  ...
-)
+@Component(...)
 export class HomePageComponent {
   constructor(private userSrv: UserService) {}
 
@@ -121,7 +117,7 @@ export class HomePageComponent {
 
 ### __Example 2__ : Listen to internal events:
 
-_In this example, we will listen to internal events that are emitted within the class._
+_In this example, we will listen to internal events that are emitted within the same class._
 
 ```typescript
 import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
@@ -168,7 +164,7 @@ export class UserService extends EventManager {
 
 ### __Example 4__ : Run code after all event listeners have completed execution:
 
-_In this example, we will run code after all event listeners have finished executing._
+_In this example, we will run code after all event listeners have finished executing. In this example, we are not using the EventListener decorator, but you could still do the same with it._
 
 ```typescript
 import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
@@ -195,7 +191,9 @@ class UserService {
 
   private userSignedOutListener(data, next: INextFn) {
     setTimeout(() => {
-      // the next function returns a completed function, you can set a callback function that gets fired when all listeners have completed and fired their next() functions.
+      // the next function returns a completed function, you can set a callback
+      // function that gets fired when all listeners have completed and fired
+      // their next() functions.
       next().completed(() => {
         // all listeners are done...
       });
@@ -213,7 +211,7 @@ class AppEventsHub extends EventManager {
 
 ### __Example 5__ : Setting the scope
 
-_Most of the time you will want to set the scope to __this__ so that the keyword this inside your listener function points to your class instance._
+_Most of the time you will want to set the scope to __this__ so that the keyword __this__ inside your listener function points to your class instance._
 
 ```typescript
 class UserService {
