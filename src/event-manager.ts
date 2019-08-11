@@ -16,7 +16,14 @@ export class EventManager {
 
 
 
-
+  /**
+   * Emit an event
+   *
+   * @param {string} eventName
+   * @param {*} [data]
+   * @returns {void}
+   * @memberof EventManager
+   */
   emit(eventName: string, data?: any) {
     if (!this.events[eventName]) return;
     let completedEvents = 0;
@@ -39,16 +46,35 @@ export class EventManager {
   }
 
 
+  /**
+   * Listen to an event
+   *
+   * @param {string} eventName
+   * @param {(data?: any, next?: INextFn) => void} fn
+   * @param {*} [scope]
+   * @memberof EventManager
+   */
   on(eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any) {
-    if (!fn) return;
+    if (!eventName) throw new Error('Please provide an eventName for on()');
+    if (!fn) throw new Error('Please provide a callback function for on()');
     (this.events[eventName] || (this.events[eventName] = [])).push({
       fn: fn,
       scope: scope
     });
   }
 
+
+  /**
+   * Listen to an event once
+   *
+   * @param {string} eventName
+   * @param {(data?: any, next?: INextFn) => void} fn
+   * @param {*} [scope]
+   * @memberof EventManager
+   */
   once(eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any) {
-    if (!fn) return;
+    if (!eventName) throw new Error('Please provide an eventName for once()');
+    if (!fn) throw new Error('Please provide a callback function for once()');
     (this.events[eventName] || (this.events[eventName] = [])).push({
       fn: fn,
       scope: scope,
@@ -66,12 +92,6 @@ export class EventManager {
   }
 
   offAll(eventName?: string) {
-    // if (eventName) {
-    //   delete this.events[eventName];
-    // } else {
-    //   this.events = {};
-    // }
-
     if (eventName) return delete this.events[eventName];
     this.events = {};
   }

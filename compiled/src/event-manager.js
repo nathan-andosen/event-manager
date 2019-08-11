@@ -29,16 +29,20 @@ var EventManager = (function () {
         }
     };
     EventManager.prototype.on = function (eventName, fn, scope) {
+        if (!eventName)
+            throw new Error('Please provide an eventName for on()');
         if (!fn)
-            return;
+            throw new Error('Please provide a callback function for on()');
         (this.events[eventName] || (this.events[eventName] = [])).push({
             fn: fn,
             scope: scope
         });
     };
     EventManager.prototype.once = function (eventName, fn, scope) {
+        if (!eventName)
+            throw new Error('Please provide an eventName for once()');
         if (!fn)
-            return;
+            throw new Error('Please provide a callback function for once()');
         (this.events[eventName] || (this.events[eventName] = [])).push({
             fn: fn,
             scope: scope,

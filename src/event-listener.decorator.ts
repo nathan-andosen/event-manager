@@ -56,12 +56,12 @@ export function EventListener (args: IEventListenerArgs): any;
 export function EventListener (arg1: string|IEventListenerArgs, arg2?: string) {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
 
-    if (typeof descriptor.value !== 'function') {
+    if (!descriptor || typeof descriptor.value !== 'function') {
       throw new Error('@EventListener: Decorator must be applied to a method');
     }
 
     if (!arg1 || (typeof arg1 !== 'string' && arg1.constructor !== {}.constructor)) {
-      throw new Error('@EventListener: First argument must be of type string or json object');
+      throw new Error('@EventListener: First argument must be of type string or IEventListenerArgs');
     }
 
     const params = (typeof arg1 === 'string')

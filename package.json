@@ -38,10 +38,11 @@
     "branches": 80,
     "all": true,
     "include": [
-      "compiled/src/**"
+      "compiled/src/**/*.js"
     ],
     "exclude": [
-      "**/*.spec.js"
+      "**/*.spec.js",
+      "**/*.ts"
     ],
     "reporter": [
       "json",
