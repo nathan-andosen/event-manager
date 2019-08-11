@@ -3,6 +3,6 @@ function __export(m) {
     for (var p in m) if (!exports.hasOwnProperty(p)) exports[p] = m[p];
 }
 Object.defineProperty(exports, "__esModule", { value: true });
-__export(require("./my-class-one"));
-__export(require("./my-class-two"));
+__export(require("./event-manager"));
+__export(require("./on-event.decorator"));
 //# sourceMappingURL=index.js.map

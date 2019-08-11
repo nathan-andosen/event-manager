@@ -1,2 +1,2 @@
-export * from './my-class-one';
-export * from './my-class-two';
+export * from './event-manager';
+export * from './on-event.decorator';

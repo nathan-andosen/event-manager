@@ -1,5 +1,5 @@
 {
-  "name": "node-module-seed",
+  "name": "@thenja/event-manager",
   "description": "A repo to kickstart your next typescript node module",
   "main": "compiled/src/index.js",
   "types": "compiled/src/index.d.ts",
