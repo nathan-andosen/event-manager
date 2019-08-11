@@ -2,10 +2,232 @@
 
 # Event Manager
 
-__Work in progress__
+Event manager is an easy way to manage events in a web applications. Its a basic class that you can extend or initialise to add extra event functionality using methods like: _emit()_, _on()_, _off()_ and so on.
 
-### What benefits does this library offer?
+## __Key features__
 
+* __Bind and unbind to events using a decorator__
+  * Reduce code by automatically binding and unbinding to events with a method decorator
+  * Works great with Angular
+* __Run code after all event listeners have executed__
+  * Easily run code after all event listeners have completed. Works with async event listeners as well
+* __Small & light weight__
+
+# How to use
+
+1. Install the module:
+
+``npm install @thenja/event-manager --save``
+
+2. Import the depenedency:
+
+```typescript
+import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
+```
+
+## __Methods / API__
+
+#### __.emit(eventName: string, data?: any)__
+
+Emit an event
+
+#### __.on(eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any)__
+
+Bind to an event
+
+#### __.once(eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any)__
+
+Bind to an event once, the listener will only fire once.
+
+#### __.off(eventName: string, fn: (data?: any, next?: INextFn) => void)__
+
+Unbind from an event.
+
+#### __.offAll(eventName?: string)__
+
+Unbind from all events. If you pass in an eventName, it will only unbind all listeners for that event.
+
+### __@EventListener decorator__
+
+The _@EventListener_ decorator is a method decorator and is very useful in components like Angular components.
+
+__How it works:__
+
+The decorator simple binds the event on an initialisation method, in the case of Angular, its the _ngOnInit_ method. It unbinds the event on a destroy method, in the case of Angular, its the _ngOnDestroy_ method.
+
+The decorator can be used in two ways:
+
+__Two individual arguments:__
+
+```typescript
+@EventListener(eventName: string, eventClass?: string)
+```
+
+* __eventName__ : The name of the emitted event.
+* __eventClass__ : _(optional)_ The constructor name of the class that is emitting the event (view example 1 below in the _Use cases / Examples_ section). If the listener method is listening to internal events that are emitted from within the same class, this can be left blank (view example 2 below in the _Use cases / Examples_ section).
+
+__One object argument:__
+
+```typescript
+@EventListener(args: IEventListenerArgs)
+
+// Example
+@EventListener({
+  eventName: 'user-sign-in',
+  eventClass: UserService.name,
+  initFn: 'ngOnInit',
+  destroyFn: 'ngOnDestroy'
+})
+```
+
+* __eventName__ : _Same as above_
+* __eventClass__ : _Same as above_
+* __initFn__ : _[Default = ngOnInit]_ The function that is fired when the component / class is initialised. This is where binding to events will occur. If you want to bind to events when the constructor is fired, view example 3 below in the _Use cases / Examples_ section.
+* __destroyFn__ : _[Default = ngOnDestroy]_ The function that is fired when the component is destroyed. This is where unbinding from events will occur.
+
+
+---
+
+## __Use cases / Examples__
+
+### __Example 1__ : Listen to an event, emitted from a service inside an Angular component:
+
+_In this example, we have a service that is injected into an Angular component, the service emits events, the component can bind to these events._
+
+```typescript
+import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
+
+// our service
+export class UserService extends EventManager {
+  userSignIn() {
+    const userData = {};
+    this.emit('user-sign-in', userData);
+  }
+}
+
+// our angular component
+@Component(
+  ...
+)
+export class HomePageComponent {
+  constructor(private userSrv: UserService) {}
+
+  @EventListener('user-sign-in', UserService.name)
+  userSignInListener(userData: any) {
+    // This method will be fired when the user-sign-in event is emitted
+  }
+}
+```
+
+### __Example 2__ : Listen to internal events:
+
+_In this example, we will listen to internal events that are emitted within the class._
+
+```typescript
+import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
+
+export class UserService extends EventManager {
+  userSignIn() {
+    const userData = {};
+    this.emit('user-sign-in', userData);
+  }
+
+  @EventListener('user-sign-in')
+  userSignInListener(userData: any) {
+    // This method will be fired when the user-sign-in event is emitted
+  }
+}
+```
+
+### __Example 3__ : Bind to events inside constructor:
+
+_In this example, we set different init and destroy functions. In this case, we bind to events when the constructor is fired._
+
+```typescript
+import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
+
+export class UserService extends EventManager {
+  constructor() {
+    super();
+    this.init();
+  }
+
+  protected init();
+  destroy();
+
+  @EventListener({
+    eventName: 'user-sign-in',
+    initFn: 'init',
+    destroyFn: 'destroy'
+  })
+  userSignInListener(userData: any) {
+    // This method will now be bound to the event when the constructor fires
+  }
+}
+```
+
+### __Example 4__ : Run code after all event listeners have completed execution:
+
+_In this example, we will run code after all event listeners have finished executing._
+
+```typescript
+import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
+
+// our user settings service
+class UserSettingsService {
+  constructor(private appEventsHub: AppEventsHub) {
+    this.appEventsHub.on('user-signed-out', this.userSignedOutListener, this);
+  }
+
+  private userSignedOutListener(data, next: INextFn) {
+    setTimeout(() => {
+      // fire the next function to indicate we are done
+      next();
+    }, 10);
+  }
+}
+
+// our user service
+class UserService {
+  constructor(private appEventsHub: AppEventsHub) {
+    this.appEventsHub.on('user-signed-out', this.userSignedOutListener, this);
+  }
+
+  private userSignedOutListener(data, next: INextFn) {
+    setTimeout(() => {
+      // the next function returns a completed function, you can set a callback function that gets fired when all listeners have completed and fired their next() functions.
+      next().completed(() => {
+        // all listeners are done...
+      });
+    }, 5);
+  }
+}
+
+// our app events hub service
+class AppEventsHub extends EventManager {
+  userSignedOut() {
+    this.emit('user-signed-out');
+  }
+}
+```
+
+### __Example 5__ : Setting the scope
+
+_Most of the time you will want to set the scope to __this__ so that the keyword this inside your listener function points to your class instance._
+
+```typescript
+class UserService {
+  private userIsSignedIn = true;
+  constructor(private appEventsHub: AppEventsHub) {
+    // set this as the scope
+    this.appEventsHub.on('user-signed-out', this.userSignedOutListener, this);
+  }
+
+  private userSignedOutListener(data, next: INextFn) {
+    this.userIsSignedIn = false;
+  }
+}
+```
 
 # Development
 

@@ -3,18 +3,18 @@ var path = require('path');
 var version = require('./package.json').version;
 var isProduction = (process.env.NODE_ENV === 'production');
 
-var banner = 'My App v' + version + '\n' +
+var banner = 'EventManager v' + version + '\n' +
   '(c) ' + new Date().getFullYear() + ' Nathan Anderson';
 
 module.exports = {
   mode: (isProduction) ? "production" : "development",
   entry: {
-    "XApp" : "./src/index.ts"
+    "EventManager" : "./src/index.ts"
   },
   output: {
     path: path.join(__dirname, "dist"),
-    filename: "my-class.min.js",
-    library : ["XApp"],
+    filename: "event-manager.min.js",
+    library : ["EventManager"],
     libraryTarget: 'umd'
   },
   resolve: {
