@@ -1,9 +1,9 @@
 {
   "name": "@thenja/event-manager",
-  "description": "A repo to kickstart your next typescript node module",
+  "description": "Easily manager events in web applications, works great with Angular.",
   "main": "compiled/src/index.js",
   "types": "compiled/src/index.d.ts",
-  "version": "0.0.2",
+  "version": "1.0.0",
   "private": true,
   "dependencies": {},
   "devDependencies": {
