@@ -67,14 +67,13 @@ export function EventListener (arg1: string|IEventListenerArgs, arg2?: string) {
     }
 
     const params = (typeof arg1 === 'string')
-      ? { eventName: arg1, eventClass: arg2 } : { ...arg1 };
+      ? { eventName: arg1, eventClass: arg2 } : arg1;
     const initFnName = (params.initFn) ? params.initFn : 'ngOnInit';
     const destroyFnName = (params.destroyFn) ? params.destroyFn : 'ngOnDestroy';
     let eventClassInstance = null;
 
     // hook into our init function so we can bind to an event
-    if (!target[initFnName]) target[initFnName] = () => {};
-    const initFnOrignal = target[initFnName];
+    const initFnOrignal = (target[initFnName] || function(){});
     target.constructor.prototype[initFnName] = function() {
       initFnOrignal.apply(this, arguments);
       eventClassInstance = getEventClass(params, this);
@@ -82,8 +81,7 @@ export function EventListener (arg1: string|IEventListenerArgs, arg2?: string) {
     };
 
     // hook into our destroy function so we can unbind from an event
-    if (!target[destroyFnName]) target[destroyFnName] = () => {};
-    const destroyFnOriginal = target[destroyFnName];
+    const destroyFnOriginal = (target[destroyFnName] || function(){});
     target.constructor.prototype[destroyFnName] = function() {
       destroyFnOriginal.apply(this, arguments);
       eventClassInstance.off(params.eventName, descriptor.value);

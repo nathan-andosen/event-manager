@@ -1,15 +1,4 @@
 "use strict";
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 function getClassPropertyName(args, instance) {
     if (!args.eventClass)
@@ -43,21 +32,17 @@ function EventListener(arg1, arg2) {
                 + 'or IEventListenerArgs');
         }
         var params = (typeof arg1 === 'string')
-            ? { eventName: arg1, eventClass: arg2 } : __assign({}, arg1);
+            ? { eventName: arg1, eventClass: arg2 } : arg1;
         var initFnName = (params.initFn) ? params.initFn : 'ngOnInit';
         var destroyFnName = (params.destroyFn) ? params.destroyFn : 'ngOnDestroy';
         var eventClassInstance = null;
-        if (!target[initFnName])
-            target[initFnName] = function () { };
-        var initFnOrignal = target[initFnName];
+        var initFnOrignal = (target[initFnName] || function () { });
         target.constructor.prototype[initFnName] = function () {
             initFnOrignal.apply(this, arguments);
             eventClassInstance = getEventClass(params, this);
             eventClassInstance.on(params.eventName, descriptor.value, this);
         };
-        if (!target[destroyFnName])
-            target[destroyFnName] = function () { };
-        var destroyFnOriginal = target[destroyFnName];
+        var destroyFnOriginal = (target[destroyFnName] || function () { });
         target.constructor.prototype[destroyFnName] = function () {
             destroyFnOriginal.apply(this, arguments);
             eventClassInstance.off(params.eventName, descriptor.value);

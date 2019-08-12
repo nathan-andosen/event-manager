@@ -213,6 +213,8 @@ describe('Event Listener Decorator', function () {
                 _this.cnt = 0;
                 return _this;
             }
+            Hub.prototype.ngOnInit = function () { this.cnt++; };
+            Hub.prototype.ngOnDestroy = function () { };
             Hub.prototype.cntListener = function () {
                 this.cnt++;
             };
@@ -227,10 +229,10 @@ describe('Event Listener Decorator', function () {
         var hub = new Hub();
         hub['ngOnInit']();
         hub.emit('cnt-up');
-        expect(hub.cnt).toEqual(1);
+        expect(hub.cnt).toEqual(2);
         hub['ngOnDestroy']();
         hub.emit('cnt-up');
-        expect(hub.cnt).toEqual(1);
+        expect(hub.cnt).toEqual(2);
     });
     it('should use property class', function () {
         var EventHub = (function (_super) {
@@ -532,7 +534,7 @@ describe('Event Manager', function () {
             catch (e) {
                 err = e;
             }
-            expect(err.message).toContain('Please provide');
+            expect(err.message).toContain('No eventName passed');
         });
         it('should throw error as no callback function is passed', function () {
             var err = null;
@@ -550,7 +552,7 @@ describe('Event Manager', function () {
             catch (e) {
                 err = e;
             }
-            expect(err.message).toContain('Please provide');
+            expect(err.message).toContain('No callback function');
         });
     });
     describe('once()', function () {
@@ -588,7 +590,7 @@ describe('Event Manager', function () {
             catch (e) {
                 err = e;
             }
-            expect(err.message).toContain('Please provide');
+            expect(err.message).toContain('No eventName passed');
         });
         it('should throw error as no callback function is passed', function () {
             var err = null;
@@ -606,7 +608,7 @@ describe('Event Manager', function () {
             catch (e) {
                 err = e;
             }
-            expect(err.message).toContain('Please provide');
+            expect(err.message).toContain('No callback function');
         });
     });
     describe('off()', function () {
@@ -683,17 +685,6 @@ describe('Event Manager', function () {
 
 "use strict";
 
-var __assign = (this && this.__assign) || function () {
-    __assign = Object.assign || function(t) {
-        for (var s, i = 1, n = arguments.length; i < n; i++) {
-            s = arguments[i];
-            for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p))
-                t[p] = s[p];
-        }
-        return t;
-    };
-    return __assign.apply(this, arguments);
-};
 Object.defineProperty(exports, "__esModule", { value: true });
 function getClassPropertyName(args, instance) {
     if (!args.eventClass)
@@ -727,21 +718,17 @@ function EventListener(arg1, arg2) {
                 + 'or IEventListenerArgs');
         }
         var params = (typeof arg1 === 'string')
-            ? { eventName: arg1, eventClass: arg2 } : __assign({}, arg1);
+            ? { eventName: arg1, eventClass: arg2 } : arg1;
         var initFnName = (params.initFn) ? params.initFn : 'ngOnInit';
         var destroyFnName = (params.destroyFn) ? params.destroyFn : 'ngOnDestroy';
         var eventClassInstance = null;
-        if (!target[initFnName])
-            target[initFnName] = function () { };
-        var initFnOrignal = target[initFnName];
+        var initFnOrignal = (target[initFnName] || function () { });
         target.constructor.prototype[initFnName] = function () {
             initFnOrignal.apply(this, arguments);
             eventClassInstance = getEventClass(params, this);
             eventClassInstance.on(params.eventName, descriptor.value, this);
         };
-        if (!target[destroyFnName])
-            target[destroyFnName] = function () { };
-        var destroyFnOriginal = target[destroyFnName];
+        var destroyFnOriginal = (target[destroyFnName] || function () { });
         target.constructor.prototype[destroyFnName] = function () {
             destroyFnOriginal.apply(this, arguments);
             eventClassInstance.off(params.eventName, descriptor.value);
@@ -778,8 +765,7 @@ var EventManager = (function () {
             var eventFunction = _a[_i];
             eventFunction.fn.call(eventFunction.scope, data, function () {
                 setTimeout(function () {
-                    completedEvents++;
-                    if (completedEvents === _this.events[eventName].length) {
+                    if (++completedEvents === _this.events[eventName].length) {
                         completedCallbacks.forEach(function (cb) { cb(); });
                     }
                 }, 0);
@@ -793,24 +779,22 @@ var EventManager = (function () {
         }
     };
     EventManager.prototype.on = function (eventName, fn, scope) {
-        if (!eventName)
-            throw new Error('Please provide an eventName for on()');
-        if (!fn)
-            throw new Error('Please provide a callback function for on()');
-        (this.events[eventName] || (this.events[eventName] = [])).push({
-            fn: fn,
-            scope: scope
-        });
+        this.addFn(eventName, fn, scope);
     };
     EventManager.prototype.once = function (eventName, fn, scope) {
+        this.addFn(eventName, fn, scope, true);
+    };
+    EventManager.prototype.addFn = function (eventName, fn, scope, once) {
+        if (once === void 0) { once = false; }
+        var fnName = (once) ? 'once' : 'on';
         if (!eventName)
-            throw new Error('Please provide an eventName for once()');
+            throw new Error("No eventName passed to " + fnName + "()");
         if (!fn)
-            throw new Error('Please provide a callback function for once()');
+            throw new Error("No callback function passed to " + fnName + "()");
         (this.events[eventName] || (this.events[eventName] = [])).push({
             fn: fn,
             scope: scope,
-            onceOnlyEvent: true
+            onceOnlyEvent: once
         });
     };
     EventManager.prototype.off = function (eventName, fn) {

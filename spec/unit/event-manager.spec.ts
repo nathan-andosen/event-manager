@@ -75,7 +75,7 @@ describe('Event Manager', () => {
       } catch(e) {
         err = e;
       }
-      expect(err.message).toContain('Please provide');
+      expect(err.message).toContain('No eventName passed');
     });
 
     it('should throw error as no callback function is passed', () => {
@@ -87,7 +87,7 @@ describe('Event Manager', () => {
       } catch(e) {
         err = e;
       }
-      expect(err.message).toContain('Please provide');
+      expect(err.message).toContain('No callback function');
     });
   });
 
@@ -118,7 +118,7 @@ describe('Event Manager', () => {
       } catch(e) {
         err = e;
       }
-      expect(err.message).toContain('Please provide');
+      expect(err.message).toContain('No eventName passed');
     });
 
     it('should throw error as no callback function is passed', () => {
@@ -130,7 +130,7 @@ describe('Event Manager', () => {
       } catch(e) {
         err = e;
       }
-      expect(err.message).toContain('Please provide');
+      expect(err.message).toContain('No callback function');
     });
   });
 

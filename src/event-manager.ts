@@ -1,6 +1,7 @@
 
+type ICallbackFn = (data?: any, next?: INextFn) => void;
 interface IEventData {
-  fn: (data?: any) => void;
+  fn: ICallbackFn;
   scope?: any;
   onceOnlyEvent?: boolean;
 }
@@ -38,8 +39,7 @@ export class EventManager {
       eventFunction.fn.call(eventFunction.scope, data, () => {
         // place in a timeout so that the return statement is executed first
         setTimeout(() => {
-          completedEvents++;
-          if (completedEvents === this.events[eventName].length) {
+          if (++completedEvents === this.events[eventName].length) {
             completedCallbacks.forEach((cb) => { cb(); });
           }
         }, 0);
@@ -60,13 +60,8 @@ export class EventManager {
    * @param {*} [scope]
    * @memberof EventManager
    */
-  on(eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any) {
-    if (!eventName) throw new Error('Please provide an eventName for on()');
-    if (!fn) throw new Error('Please provide a callback function for on()');
-    (this.events[eventName] || (this.events[eventName] = [])).push({
-      fn: fn,
-      scope: scope
-    });
+  on(eventName: string, fn: ICallbackFn, scope?: any) {
+    this.addFn(eventName, fn, scope);
   }
 
 
@@ -78,13 +73,29 @@ export class EventManager {
    * @param {*} [scope]
    * @memberof EventManager
    */
-  once(eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any) {
-    if (!eventName) throw new Error('Please provide an eventName for once()');
-    if (!fn) throw new Error('Please provide a callback function for once()');
+  once(eventName: string, fn: ICallbackFn, scope?: any) {
+    this.addFn(eventName, fn, scope, true);
+  }
+
+
+  /**
+   * Add a function callback for an event
+   *
+   * @private
+   * @param {string} eventName
+   * @param {ICallbackFn} fn
+   * @param {*} [scope]
+   * @param {boolean} [once=false]
+   * @memberof EventManager
+   */
+  private addFn(eventName: string, fn: ICallbackFn, scope?: any, once = false) {
+    const fnName = (once) ? 'once' : 'on';
+    if (!eventName) throw new Error(`No eventName passed to ${fnName}()`);
+    if (!fn) throw new Error(`No callback function passed to ${fnName}()`);
     (this.events[eventName] || (this.events[eventName] = [])).push({
       fn: fn,
       scope: scope,
-      onceOnlyEvent: true
+      onceOnlyEvent: once
     });
   }
 

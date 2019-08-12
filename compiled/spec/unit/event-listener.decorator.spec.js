@@ -65,6 +65,8 @@ describe('Event Listener Decorator', function () {
                 _this.cnt = 0;
                 return _this;
             }
+            Hub.prototype.ngOnInit = function () { this.cnt++; };
+            Hub.prototype.ngOnDestroy = function () { };
             Hub.prototype.cntListener = function () {
                 this.cnt++;
             };
@@ -79,10 +81,10 @@ describe('Event Listener Decorator', function () {
         var hub = new Hub();
         hub['ngOnInit']();
         hub.emit('cnt-up');
-        expect(hub.cnt).toEqual(1);
+        expect(hub.cnt).toEqual(2);
         hub['ngOnDestroy']();
         hub.emit('cnt-up');
-        expect(hub.cnt).toEqual(1);
+        expect(hub.cnt).toEqual(2);
     });
     it('should use property class', function () {
         var EventHub = (function (_super) {

@@ -32,6 +32,9 @@ describe('Event Listener Decorator', () => {
     class Hub extends EventManager {
       public cnt = 0;
 
+      ngOnInit() { this.cnt++; }
+      ngOnDestroy() {}
+
       @EventListener('cnt-up')
       protected cntListener() {
         this.cnt++;
@@ -40,10 +43,10 @@ describe('Event Listener Decorator', () => {
     const hub = new Hub();
     hub['ngOnInit'](); // bind our event listener
     hub.emit('cnt-up');
-    expect(hub.cnt).toEqual(1);
+    expect(hub.cnt).toEqual(2);
     hub['ngOnDestroy'](); // unbind our event listener
     hub.emit('cnt-up');
-    expect(hub.cnt).toEqual(1);
+    expect(hub.cnt).toEqual(2);
   });
 
   it('should use property class', () => {

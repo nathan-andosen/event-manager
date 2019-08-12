@@ -14,8 +14,7 @@ var EventManager = (function () {
             var eventFunction = _a[_i];
             eventFunction.fn.call(eventFunction.scope, data, function () {
                 setTimeout(function () {
-                    completedEvents++;
-                    if (completedEvents === _this.events[eventName].length) {
+                    if (++completedEvents === _this.events[eventName].length) {
                         completedCallbacks.forEach(function (cb) { cb(); });
                     }
                 }, 0);
@@ -29,24 +28,22 @@ var EventManager = (function () {
         }
     };
     EventManager.prototype.on = function (eventName, fn, scope) {
-        if (!eventName)
-            throw new Error('Please provide an eventName for on()');
-        if (!fn)
-            throw new Error('Please provide a callback function for on()');
-        (this.events[eventName] || (this.events[eventName] = [])).push({
-            fn: fn,
-            scope: scope
-        });
+        this.addFn(eventName, fn, scope);
     };
     EventManager.prototype.once = function (eventName, fn, scope) {
+        this.addFn(eventName, fn, scope, true);
+    };
+    EventManager.prototype.addFn = function (eventName, fn, scope, once) {
+        if (once === void 0) { once = false; }
+        var fnName = (once) ? 'once' : 'on';
         if (!eventName)
-            throw new Error('Please provide an eventName for once()');
+            throw new Error("No eventName passed to " + fnName + "()");
         if (!fn)
-            throw new Error('Please provide a callback function for once()');
+            throw new Error("No callback function passed to " + fnName + "()");
         (this.events[eventName] || (this.events[eventName] = [])).push({
             fn: fn,
             scope: scope,
-            onceOnlyEvent: true
+            onceOnlyEvent: once
         });
     };
     EventManager.prototype.off = function (eventName, fn) {
