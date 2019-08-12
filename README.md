@@ -27,23 +27,23 @@ import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
 
 ## __Methods / API__
 
-#### __.emit (eventName: string, data?: any)__
+> __.emit (eventName: string, data?: any)__
 
 Emit an event. The second parameter is the data that is passed to the listener function.
 
-#### __.on (eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any)__
+> __.on (eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any)__
 
 Bind to an event. If the emitted event sends data, it will be the first parameter.
 
-#### __.once (eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any)__
+> __.once (eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any)__
 
 Bind to an event once, the listener will only fire once.
 
-#### __.off (eventName: string, fn: (data?: any, next?: INextFn) => void)__
+> __.off (eventName: string, fn: (data?: any, next?: INextFn) => void)__
 
 Unbind from an event.
 
-#### __.offAll (eventName?: string)__
+> __.offAll (eventName?: string)__
 
 Unbind from all events. If you pass in an eventName, it will only unbind all listeners for that event.
 
