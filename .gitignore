@@ -6,6 +6,7 @@ node_modules/
 .nyc_output/
 coverage.shield.badge.md
 coverage/
+.vscode/
 
 # OS generated files #
 ######################
