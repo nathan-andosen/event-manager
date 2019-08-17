@@ -1,6 +1,5 @@
 src/
 debug/
-dist/
 dev-only/
 compiled/spec
 .vscode/
@@ -12,3 +11,5 @@ package-lock.json
 tsconfig.json
 webpack-unit-tests.config.js
 webpack.config.js
+.nyc_output/
+spec/
