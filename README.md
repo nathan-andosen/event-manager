@@ -1,17 +1,19 @@
-![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-100%25-brightgreen.svg)
+![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-87.84%25-yellow.svg)
 
 # Event Manager
 
-Event manager is an easy way to manage events in a web applications. Its a basic class that you can extend or initialise to add extra event functionality using methods like: _emit()_, _on()_, _off()_ and so on.
+Event manager is an easy way to manage events in a web applications. Its a basic class that you can use to add extra event functionality using methods like: _emit()_, _on()_, _off()_ and so on.
 
-## __Key features__
+## Key features
 
 * __Bind and unbind to events using a decorator__
   * Reduce code by automatically binding and unbinding to events with a method decorator
-  * Works great with Angular components
+  * Works great with Angular components, binds on the _ngOnInit_ method and unbinds on the _ngOnDestroy_ method
 * __Run code after all event listeners have executed__
   * Easily run code after all event listeners have completed. Works with async event listeners as well
 * __Small & light weight__
+* __Inheritance or Composition__
+  * Use the EventManager class via inheritance or composition
 
 # How to use
 
@@ -19,35 +21,66 @@ Event manager is an easy way to manage events in a web applications. Its a basic
 
 ``npm install @thenja/event-manager --save``
 
-2. Import the depenedency:
+2. You have two ways to use the EventManager. Inheritance via _extends_ or composition via _typescript mixins_.
+
+### Inheritance:
 
 ```typescript
 import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
+
+export class UserService extends EventManager {
+  userSignIn() {
+    this.emit('user-sign-in', {});
+  }
+}
 ```
 
-## __Methods / API__
+### Composition:
 
-> __.emit (eventName: string, data?: any)__
+To work with composition in Typescript, we use mixins, you will have to include the [mixin-utilities.ts](src/mixin-utilities.ts) file into your project.
+
+```typescript
+import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
+import { applyMixinsExcludeConstructor } from './mixin-utilities';
+
+class UserService {
+  userSignIn() {
+    this.emit('user-sign-in', {});
+  }
+}
+
+// use typescripts declaration merging to add the
+// EventManager types to the UserService
+interface UserService extends EventManager {}
+applyMixinsExcludeConstructor(UserService, [ EventManager ]);
+
+export { UserService }
+
+```
+
+## Methods / API
+
+### emit (_eventName: string, data?: any_)
 
 Emit an event. The second parameter is the data that is passed to the listener function.
 
-> __.on (eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any)__
+### .on (_eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any_)
 
 Bind to an event. If the emitted event sends data, it will be the first parameter.
 
-> __.once (eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any)__
+### .once (_eventName: string, fn: (data?: any, next?: INextFn) => void, scope?: any_)
 
 Bind to an event once, the listener will only fire once.
 
-> __.off (eventName: string, fn: (data?: any, next?: INextFn) => void)__
+### .off (_eventName: string, fn: (data?: any, next?: INextFn) => void_)
 
 Unbind from an event.
 
-> __.offAll (eventName?: string)__
+### .offAll (_eventName?: string_)
 
 Unbind from all events. If you pass in an eventName, it will only unbind all listeners for that event.
 
-### __@EventListener decorator__
+## @EventListener decorator
 
 The _@EventListener_ decorator is a method decorator and is very useful in Angular components, but can be used anywhere.
 
@@ -86,9 +119,9 @@ __One object argument:__
 * __destroyFn__ : _[Default = ngOnDestroy]_ The function that is fired when the component is destroyed. This is where unbinding from events will occur.
 
 
-## __Use cases / Examples__
+# Use cases / Examples
 
-### __Example 1__ : Listen to an event thats emitted from a service inside an Angular component:
+### Example 1 - _Listen to an event thats emitted from a service inside an Angular component:_
 
 _In this example, we have a service that is injected into an Angular component, the service emits events, the component can bind to these events._
 
@@ -115,7 +148,7 @@ export class HomePageComponent {
 }
 ```
 
-### __Example 2__ : Listen to internal events:
+### Example 2 - _Listen to internal events:_
 
 _In this example, we will listen to internal events that are emitted within the same class._
 
@@ -135,7 +168,7 @@ export class UserService extends EventManager {
 }
 ```
 
-### __Example 3__ : Bind to events inside constructor:
+### Example 3 - _Bind to events inside constructor:_
 
 _In this example, we set different init and destroy functions. In this case, we bind to events when the constructor is fired._
 
@@ -162,7 +195,7 @@ export class UserService extends EventManager {
 }
 ```
 
-### __Example 4__ : Run code after all event listeners have completed execution:
+### Example 4 - _Run code after all event listeners have completed execution:_
 
 _In this example, we will run code after all event listeners have finished executing. In this example, we are not using the EventListener decorator, but you could still do the same with it._
 
@@ -209,7 +242,7 @@ class AppEventsHub extends EventManager {
 }
 ```
 
-### __Example 5__ : Setting the scope
+### Example 5 - _Setting the scope_
 
 _Most of the time you will want to set the scope to __this__ so that the keyword __this__ inside your listener function points to your class instance._
 

@@ -33,8 +33,8 @@ function EventListener(arg1, arg2) {
         }
         var params = (typeof arg1 === 'string')
             ? { eventName: arg1, eventClass: arg2 } : arg1;
-        var initFnName = (params.initFn) ? params.initFn : 'ngOnInit';
-        var destroyFnName = (params.destroyFn) ? params.destroyFn : 'ngOnDestroy';
+        var initFnName = (params.initFn || 'ngOnInit');
+        var destroyFnName = (params.destroyFn || 'ngOnDestroy');
         var eventClassInstance = null;
         var initFnOrignal = (target[initFnName] || function () { });
         target.constructor.prototype[initFnName] = function () {

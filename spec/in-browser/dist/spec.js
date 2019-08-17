@@ -719,8 +719,8 @@ function EventListener(arg1, arg2) {
         }
         var params = (typeof arg1 === 'string')
             ? { eventName: arg1, eventClass: arg2 } : arg1;
-        var initFnName = (params.initFn) ? params.initFn : 'ngOnInit';
-        var destroyFnName = (params.destroyFn) ? params.destroyFn : 'ngOnDestroy';
+        var initFnName = (params.initFn || 'ngOnInit');
+        var destroyFnName = (params.destroyFn || 'ngOnDestroy');
         var eventClassInstance = null;
         var initFnOrignal = (target[initFnName] || function () { });
         target.constructor.prototype[initFnName] = function () {
@@ -753,8 +753,17 @@ exports.EventListener = EventListener;
 Object.defineProperty(exports, "__esModule", { value: true });
 var EventManager = (function () {
     function EventManager() {
-        this.events = {};
     }
+    Object.defineProperty(EventManager.prototype, "events", {
+        get: function () {
+            return (this._events || (this._events = {}));
+        },
+        set: function (val) {
+            this._events = val;
+        },
+        enumerable: true,
+        configurable: true
+    });
     EventManager.prototype.emit = function (eventName, data) {
         var _this = this;
         if (!this.events[eventName])
@@ -774,7 +783,7 @@ var EventManager = (function () {
                         completedCallbacks.push(cb); }
                 };
             });
-            if (eventFunction.onceOnlyEvent)
+            if (eventFunction.once)
                 this.off(eventName, eventFunction.fn);
         }
     };
@@ -794,7 +803,7 @@ var EventManager = (function () {
         (this.events[eventName] || (this.events[eventName] = [])).push({
             fn: fn,
             scope: scope,
-            onceOnlyEvent: once
+            once: once
         });
     };
     EventManager.prototype.off = function (eventName, fn) {

@@ -3,12 +3,11 @@ type ICallbackFn = (data?: any, next?: INextFn) => void;
 interface IEventData {
   fn: ICallbackFn;
   scope?: any;
-  onceOnlyEvent?: boolean;
+  once?: boolean;
 }
 
 // type for the next() function
 export type INextFn = () => { completed: (cb: () => void) => void };
-
 
 
 /**
@@ -20,7 +19,13 @@ export type INextFn = () => { completed: (cb: () => void) => void };
 export class EventManager {
 
   // subscribed events
-  private events: { [eventName: string]: IEventData[] } = {};
+  private _events: { [eventName: string]: IEventData[] };
+  private set events(val: { [eventName: string]: IEventData[] }) {
+    this._events = val;
+  }
+  private get events(): { [eventName: string]: IEventData[] } {
+    return (this._events || (this._events = {}));
+  }
 
 
   /**
@@ -47,7 +52,7 @@ export class EventManager {
           completed: (cb: Function) => { if (cb) completedCallbacks.push(cb); }
         };
       });
-      if (eventFunction.onceOnlyEvent) this.off(eventName, eventFunction.fn);
+      if (eventFunction.once) this.off(eventName, eventFunction.fn);
     }
   }
 
@@ -95,7 +100,7 @@ export class EventManager {
     (this.events[eventName] || (this.events[eventName] = [])).push({
       fn: fn,
       scope: scope,
-      onceOnlyEvent: once
+      once: once
     });
   }
 

@@ -3,6 +3,7 @@ export declare type INextFn = () => {
     completed: (cb: () => void) => void;
 };
 export declare class EventManager {
+    private _events;
     private events;
     emit(eventName: string, data?: any): void;
     on(eventName: string, fn: ICallbackFn, scope?: any): void;

@@ -68,8 +68,8 @@ export function EventListener (arg1: string|IEventListenerArgs, arg2?: string) {
 
     const params = (typeof arg1 === 'string')
       ? { eventName: arg1, eventClass: arg2 } : arg1;
-    const initFnName = (params.initFn) ? params.initFn : 'ngOnInit';
-    const destroyFnName = (params.destroyFn) ? params.destroyFn : 'ngOnDestroy';
+    const initFnName = (params.initFn || 'ngOnInit');
+    const destroyFnName = (params.destroyFn || 'ngOnDestroy');
     let eventClassInstance = null;
 
     // hook into our init function so we can bind to an event
