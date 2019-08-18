@@ -843,6 +843,36 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(__webpack_require__(/*! ./event-manager */ "./src/event-manager.ts"));
 __export(__webpack_require__(/*! ./event-listener.decorator */ "./src/event-listener.decorator.ts"));
+__export(__webpack_require__(/*! ./mixin.decorator */ "./src/mixin.decorator.ts"));
+
+
+/***/ }),
+
+/***/ "./src/mixin.decorator.ts":
+/*!********************************!*\
+  !*** ./src/mixin.decorator.ts ***!
+  \********************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+function Mixin(classes, ignoreConstructor) {
+    if (ignoreConstructor === void 0) { ignoreConstructor = true; }
+    return function (target) {
+        classes.forEach(function (clas) {
+            Object.getOwnPropertyNames(clas.prototype).forEach(function (name) {
+                if (ignoreConstructor && name === 'constructor')
+                    return;
+                var propDesc = Object.getOwnPropertyDescriptor(clas.prototype, name);
+                Object.defineProperty(target.prototype, name, propDesc);
+            });
+        });
+    };
+}
+exports.Mixin = Mixin;
+;
 
 
 /***/ })

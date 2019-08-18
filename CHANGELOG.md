@@ -1,3 +1,9 @@
+# 1.2.0
+
+### Added:
+
+* Added mixin decorator for better composition, updated docs
+
 # 1.1.0
 
 ### Added:

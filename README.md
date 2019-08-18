@@ -1,4 +1,4 @@
-![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-87.84%25-yellow.svg)
+![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-81.71%25-yellow.svg)
 
 # Event Manager
 
@@ -37,25 +37,18 @@ export class UserService extends EventManager {
 
 ### Composition:
 
-To work with composition in Typescript, we use mixins, you will have to include the [mixin-utilities.ts](src/mixin-utilities.ts) file into your project.
-
 ```typescript
-import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
-import { applyMixinsExcludeConstructor } from './mixin-utilities';
+import { EventManager, Mixin } from '@thenja/event-manager';
 
-class UserService {
+// declartion merging for our mixins
+export interface UserService extends EventManager {}
+
+@Mixin([EventManager])
+export class UserService {
   userSignIn() {
     this.emit('user-sign-in', {});
   }
 }
-
-// use typescripts declaration merging to add the
-// EventManager types to the UserService
-interface UserService extends EventManager {}
-applyMixinsExcludeConstructor(UserService, [ EventManager ]);
-
-export { UserService }
-
 ```
 
 ## Methods / API
