@@ -1,4 +1,4 @@
-![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-81.71%25-yellow.svg)
+![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-82.14%25-yellow.svg)
 
 # Event Manager
 
@@ -35,7 +35,7 @@ export class UserService extends EventManager {
 }
 ```
 
-### Composition:
+### Composition with mixin:
 
 ```typescript
 import { EventManager, Mixin } from '@thenja/event-manager';
@@ -47,6 +47,20 @@ export interface UserService extends EventManager {}
 export class UserService {
   userSignIn() {
     this.emit('user-sign-in', {});
+  }
+}
+```
+
+### Composition with property:
+
+```typescript
+import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
+
+export class UserService {
+  events = new EventManager();
+
+  userSignIn() {
+    this.events.emit('user-sign-in', {});
   }
 }
 ```

@@ -16,6 +16,9 @@ function getEventClass(args, classInstance) {
     var propertyName = getClassPropertyName(args, classInstance);
     var instance = (propertyName) ? classInstance[propertyName] : classInstance;
     if (!instance.on) {
+        if (instance.events && instance.events.on) {
+            return instance.events;
+        }
         throw new Error('@EventListener: Class ' + instance.constructor.name
             + ' must extend EventManager');
     }

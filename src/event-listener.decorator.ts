@@ -8,7 +8,8 @@ interface IEventListenerArgs {
 
 
 /**
- * Get the property name of the event class (class that emits the events)
+ * Get the property name that points to the class that extends or uses the
+ * EventManager class
  *
  * @param {IEventListenerArgs} args
  * @param {*} classInstance
@@ -26,7 +27,7 @@ function getClassPropertyName(args: IEventListenerArgs, instance: any): string {
 
 
 /**
- * Get the instance of the event class (class that emits the events)
+ * Get the instance of the EventManager class
  *
  * @param {IEventListenerArgs} args
  * @param {*} classInstance
@@ -36,6 +37,10 @@ function getEventClass(args: IEventListenerArgs, classInstance: any): any {
   const propertyName = getClassPropertyName(args, classInstance);
   const instance = (propertyName) ? classInstance[propertyName] : classInstance;
   if (!instance.on) {
+    // lets check if the instance has an 'events' property
+    if (instance.events && instance.events.on) {
+      return instance.events;
+    }
     throw new Error('@EventListener: Class ' + instance.constructor.name
       + ' must extend EventManager');
   }

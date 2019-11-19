@@ -272,5 +272,69 @@ describe('Event Listener Decorator', function () {
         expect(err.message).toContain('@EventListener: First argument must be of '
             + 'type string or IEventListenerArgs');
     });
+    it('should bind and unbind to events on the events property', function () {
+        var Hub = (function () {
+            function Hub() {
+                this.events = new src_1.EventManager();
+                this.cnt = 0;
+                this.init();
+            }
+            Hub.prototype.init = function () { };
+            Hub.prototype.destroy = function () { };
+            Hub.prototype.cntListener = function () {
+                this.cnt++;
+            };
+            __decorate([
+                src_1.EventListener({
+                    eventName: 'cnt-up',
+                    initFn: 'init',
+                    destroyFn: 'destroy'
+                }),
+                __metadata("design:type", Function),
+                __metadata("design:paramtypes", []),
+                __metadata("design:returntype", void 0)
+            ], Hub.prototype, "cntListener", null);
+            return Hub;
+        }());
+        var hub = new Hub();
+        hub.events.emit('cnt-up');
+        expect(hub.cnt).toEqual(1);
+        hub.destroy();
+        hub.events.emit('cnt-up');
+        expect(hub.cnt).toEqual(1);
+    });
+    it('should throw error as the events property is not of type EventManager', function () {
+        var err = null;
+        try {
+            var Hub = (function () {
+                function Hub() {
+                    this.events = {};
+                    this.cnt = 0;
+                    this.init();
+                }
+                Hub.prototype.init = function () { };
+                Hub.prototype.destroy = function () { };
+                Hub.prototype.cntListener = function () {
+                    this.cnt++;
+                };
+                __decorate([
+                    src_1.EventListener({
+                        eventName: 'cnt-up',
+                        initFn: 'init',
+                        destroyFn: 'destroy'
+                    }),
+                    __metadata("design:type", Function),
+                    __metadata("design:paramtypes", []),
+                    __metadata("design:returntype", void 0)
+                ], Hub.prototype, "cntListener", null);
+                return Hub;
+            }());
+            var hub = new Hub();
+        }
+        catch (e) {
+            err = e;
+        }
+        expect(err.message).toContain('@EventListener: Class');
+    });
 });
 //# sourceMappingURL=event-listener.decorator.spec.js.map

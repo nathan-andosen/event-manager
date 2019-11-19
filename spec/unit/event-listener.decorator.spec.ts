@@ -203,4 +203,60 @@ describe('Event Listener Decorator', () => {
     expect(err.message).toContain('@EventListener: First argument must be of '
       + 'type string or IEventListenerArgs')
   });
+
+  it('should bind and unbind to events on the events property', () => {
+    class Hub {
+      events = new EventManager();
+      public cnt = 0;
+      constructor() {
+        this.init();
+      }
+      private init() {}
+      destroy() {}
+
+      @EventListener({
+        eventName: 'cnt-up',
+        initFn: 'init',
+        destroyFn: 'destroy'
+      })
+      protected cntListener() {
+        this.cnt++;
+      }
+    }
+    const hub = new Hub();
+    hub.events.emit('cnt-up');
+    expect(hub.cnt).toEqual(1);
+    hub.destroy();
+    hub.events.emit('cnt-up');
+    expect(hub.cnt).toEqual(1);
+  });
+
+  it('should throw error as the events property is not of type EventManager',
+  () => {
+    let err: Error = null;
+    try {
+      class Hub {
+        events = {};
+        public cnt = 0;
+        constructor() {
+          this.init();
+        }
+        private init() {}
+        destroy() {}
+  
+        @EventListener({
+          eventName: 'cnt-up',
+          initFn: 'init',
+          destroyFn: 'destroy'
+        })
+        protected cntListener() {
+          this.cnt++;
+        }
+      }
+      const hub = new Hub();
+    } catch(e) {
+      err = e;
+    }
+    expect(err.message).toContain('@EventListener: Class');
+  });
 });
