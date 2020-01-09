@@ -303,6 +303,45 @@ describe('Event Listener Decorator', function () {
         hub.events.emit('cnt-up');
         expect(hub.cnt).toEqual(1);
     });
+    it('should bind and unbind to events on random name property', function () {
+        var EventFake = (function () {
+            function EventFake() {
+            }
+            EventFake.prototype.on = function () { };
+            return EventFake;
+        }());
+        ;
+        var Hub = (function () {
+            function Hub() {
+                this.someProp = new EventFake();
+                this.randomName = new src_1.EventManager();
+                this.cnt = 0;
+                this.init();
+            }
+            Hub.prototype.init = function () { };
+            Hub.prototype.destroy = function () { };
+            Hub.prototype.cntListener = function () {
+                this.cnt++;
+            };
+            __decorate([
+                src_1.EventListener({
+                    eventName: 'cnt-up',
+                    initFn: 'init',
+                    destroyFn: 'destroy'
+                }),
+                __metadata("design:type", Function),
+                __metadata("design:paramtypes", []),
+                __metadata("design:returntype", void 0)
+            ], Hub.prototype, "cntListener", null);
+            return Hub;
+        }());
+        var hub = new Hub();
+        hub.randomName.emit('cnt-up');
+        expect(hub.cnt).toEqual(1);
+        hub.destroy();
+        hub.randomName.emit('cnt-up');
+        expect(hub.cnt).toEqual(1);
+    });
     it('should throw error as the events property is not of type EventManager', function () {
         var err = null;
         try {
@@ -335,6 +374,96 @@ describe('Event Listener Decorator', function () {
             err = e;
         }
         expect(err.message).toContain('@EventListener: Class');
+    });
+    it('should throw error as ngOnDestroy does not exist', function () {
+        var err = null;
+        try {
+            var Hub = (function (_super) {
+                __extends(Hub, _super);
+                function Hub() {
+                    var _this = _super !== null && _super.apply(this, arguments) || this;
+                    _this.cnt = 0;
+                    return _this;
+                }
+                Hub.prototype.ngOnInit = function () { this.cnt++; };
+                Hub.prototype.cntListener = function () {
+                    this.cnt++;
+                };
+                __decorate([
+                    src_1.EventListener('cnt-up'),
+                    __metadata("design:type", Function),
+                    __metadata("design:paramtypes", []),
+                    __metadata("design:returntype", void 0)
+                ], Hub.prototype, "cntListener", null);
+                return Hub;
+            }(src_1.EventManager));
+            var hub = new Hub();
+        }
+        catch (e) {
+            err = e;
+        }
+        expect(err.message).toContain('must implement ngOnDestroy method');
+    });
+    it('should throw error as ngOnInit does not exist', function () {
+        var err = null;
+        try {
+            var Hub = (function (_super) {
+                __extends(Hub, _super);
+                function Hub() {
+                    var _this = _super !== null && _super.apply(this, arguments) || this;
+                    _this.cnt = 0;
+                    return _this;
+                }
+                Hub.prototype.ngOnDestroy = function () { };
+                Hub.prototype.cntListener = function () {
+                    this.cnt++;
+                };
+                __decorate([
+                    src_1.EventListener('cnt-up'),
+                    __metadata("design:type", Function),
+                    __metadata("design:paramtypes", []),
+                    __metadata("design:returntype", void 0)
+                ], Hub.prototype, "cntListener", null);
+                return Hub;
+            }(src_1.EventManager));
+            var hub = new Hub();
+        }
+        catch (e) {
+            err = e;
+        }
+        expect(err.message).toContain('must implement ngOnInit method');
+    });
+    it('should throw error as destroyFn not set by initFn is', function () {
+        var err = null;
+        try {
+            var Hub = (function () {
+                function Hub() {
+                    this.events = {};
+                    this.cnt = 0;
+                    this.init();
+                }
+                Hub.prototype.init = function () { };
+                Hub.prototype.destroy = function () { };
+                Hub.prototype.cntListener = function () {
+                    this.cnt++;
+                };
+                __decorate([
+                    src_1.EventListener({
+                        eventName: 'cnt-up',
+                        initFn: 'init'
+                    }),
+                    __metadata("design:type", Function),
+                    __metadata("design:paramtypes", []),
+                    __metadata("design:returntype", void 0)
+                ], Hub.prototype, "cntListener", null);
+                return Hub;
+            }());
+            var hub = new Hub();
+        }
+        catch (e) {
+            err = e;
+        }
+        expect(err.message).toContain('both initFn and destroyFn');
     });
 });
 //# sourceMappingURL=event-listener.decorator.spec.js.map

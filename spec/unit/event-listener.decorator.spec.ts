@@ -231,6 +231,35 @@ describe('Event Listener Decorator', () => {
     expect(hub.cnt).toEqual(1);
   });
 
+  it('should bind and unbind to events on random name property', () => {
+    class EventFake { on() {} };
+    class Hub {
+      someProp = new EventFake();
+      randomName = new EventManager();
+      public cnt = 0;
+      constructor() {
+        this.init();
+      }
+      private init() {}
+      destroy() {}
+
+      @EventListener({
+        eventName: 'cnt-up',
+        initFn: 'init',
+        destroyFn: 'destroy'
+      })
+      protected cntListener() {
+        this.cnt++;
+      }
+    }
+    const hub = new Hub();
+    hub.randomName.emit('cnt-up');
+    expect(hub.cnt).toEqual(1);
+    hub.destroy();
+    hub.randomName.emit('cnt-up');
+    expect(hub.cnt).toEqual(1);
+  });
+
   it('should throw error as the events property is not of type EventManager',
   () => {
     let err: Error = null;
@@ -258,5 +287,73 @@ describe('Event Listener Decorator', () => {
       err = e;
     }
     expect(err.message).toContain('@EventListener: Class');
+  });
+
+  it('should throw error as ngOnDestroy does not exist', () => {
+    let err: Error = null;
+    try {
+      class Hub extends EventManager {
+        public cnt = 0;
+
+        ngOnInit() { this.cnt++; }
+
+        @EventListener('cnt-up')
+        protected cntListener() {
+          this.cnt++;
+        }
+      }
+      const hub = new Hub();
+    } catch(e) {
+      err = e;
+    }
+    expect(err.message).toContain('must implement ngOnDestroy method');
+  });
+
+  it('should throw error as ngOnInit does not exist', () => {
+    let err: Error = null;
+    try {
+      class Hub extends EventManager {
+        public cnt = 0;
+
+        ngOnDestroy() {}
+
+        @EventListener('cnt-up')
+        protected cntListener() {
+          this.cnt++;
+        }
+      }
+      const hub = new Hub();
+    } catch(e) {
+      err = e;
+    }
+    expect(err.message).toContain('must implement ngOnInit method');
+  });
+
+  it('should throw error as destroyFn not set by initFn is',
+  () => {
+    let err: Error = null;
+    try {
+      class Hub {
+        events = {};
+        public cnt = 0;
+        constructor() {
+          this.init();
+        }
+        private init() {}
+        destroy() {}
+  
+        @EventListener({
+          eventName: 'cnt-up',
+          initFn: 'init'
+        })
+        protected cntListener() {
+          this.cnt++;
+        }
+      }
+      const hub = new Hub();
+    } catch(e) {
+      err = e;
+    }
+    expect(err.message).toContain('both initFn and destroyFn');
   });
 });
