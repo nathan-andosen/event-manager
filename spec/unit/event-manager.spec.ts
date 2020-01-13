@@ -9,27 +9,29 @@ describe('Event Manager', () => {
     it('should emit event', (done) => {
       let cnt = 0;
       class Hub extends EventManager {}
-      const hub = new Hub();
-      hub.on('event-a', (data, next) => {
+      const EVENTS = { EVENT_A: 'event-a' };
+      const hub = new Hub(EVENTS);
+      hub.on(EVENTS.EVENT_A, (data, next) => {
         cnt++;
         expect(cnt).toEqual(1);
         expect(data.a).toEqual('a');
         done();
       });
-      hub.emit('event-a', { a: 'a' });
+      hub.emit(EVENTS.EVENT_A, { a: 'a' });
     });
 
     it('should emit event and fire completed', (done) => {
       let cnt = 0;
       class Hub extends EventManager {}
-      const hub = new Hub();
-      hub.on('event-a', (data, next) => {
+      const EVENTS = { EVENT_A: 'event-a' };
+      const hub = new Hub(EVENTS);
+      hub.on(EVENTS.EVENT_A, (data, next) => {
         setTimeout(() => {
           cnt++;
           next();
         }, 5);
       });
-      hub.on('event-a', (data, next) => {
+      hub.on(EVENTS.EVENT_A, (data, next) => {
         setTimeout(() => {
           cnt++;
           next().completed(() => {
@@ -38,7 +40,7 @@ describe('Event Manager', () => {
           });
         }, 10);
       });
-      hub.emit('event-a');
+      hub.emit(EVENTS.EVENT_A);
     });
   });
 
@@ -48,11 +50,12 @@ describe('Event Manager', () => {
    */
   describe('on()', () => {
     it('should set scope', () => {
+      const EVENTS = { EVENT_A: 'event-a' };
       class Hub extends EventManager {
         public cnt = 0;
         constructor() {
-          super();
-          this.on('event-a', this.eventAListener, this);
+          super(EVENTS);
+          this.on(EVENTS.EVENT_A, this.eventAListener, this);
         }
 
         eventAListener() {
@@ -60,17 +63,18 @@ describe('Event Manager', () => {
         }
       }
       const hub = new Hub();
-      hub.emit('event-a');
+      hub.emit(EVENTS.EVENT_A);
       expect(hub.cnt).toEqual(1);
-      hub.emit('event-a');
+      hub.emit(EVENTS.EVENT_A);
       expect(hub.cnt).toEqual(2);
     });
 
     it('should throw error as no event name is passed', () => {
       let err: Error = null;
       try {
+        const EVENTS = { EVENT_A: 'event-a' };
         class Hub extends EventManager {}
-        const hub = new Hub();
+        const hub = new Hub(EVENTS);
         hub.on(null, () => {});
       } catch(e) {
         err = e;
@@ -81,9 +85,10 @@ describe('Event Manager', () => {
     it('should throw error as no callback function is passed', () => {
       let err: Error = null;
       try {
+        const EVENTS = { EVENT_A: 'event-a' };
         class Hub extends EventManager {}
-        const hub = new Hub();
-        hub.on('event-a', undefined);
+        const hub = new Hub(EVENTS);
+        hub.on(EVENTS.EVENT_A, undefined);
       } catch(e) {
         err = e;
       }
@@ -98,22 +103,24 @@ describe('Event Manager', () => {
   describe('once()', () => {
     it('should set scope and fire event only once', () => {
       const scope = { a: 1 };
+      const EVENTS = { EVENT_A: 'event-a' };
       class Hub extends EventManager {}
-      const hub = new Hub();
-      hub.once('event-a', function() {
+      const hub = new Hub(EVENTS);
+      hub.once(EVENTS.EVENT_A, function() {
         this.a++;
       }, scope);
-      hub.emit('event-a');
+      hub.emit(EVENTS.EVENT_A);
       expect(scope.a).toEqual(2);
-      hub.emit('event-a');
+      hub.emit(EVENTS.EVENT_A);
       expect(scope.a).toEqual(2);
     });
 
     it('should throw error as no event name is passed', () => {
       let err: Error = null;
       try {
+        const EVENTS = { EVENT_A: 'event-a' };
         class Hub extends EventManager {}
-        const hub = new Hub();
+        const hub = new Hub(EVENTS);
         hub.once(null, () => {});
       } catch(e) {
         err = e;
@@ -124,9 +131,10 @@ describe('Event Manager', () => {
     it('should throw error as no callback function is passed', () => {
       let err: Error = null;
       try {
+        const EVENTS = { EVENT_A: 'event-a' };
         class Hub extends EventManager {}
-        const hub = new Hub();
-        hub.once('event-a', undefined);
+        const hub = new Hub(EVENTS);
+        hub.once(EVENTS.EVENT_A, undefined);
       } catch(e) {
         err = e;
       }
@@ -141,17 +149,18 @@ describe('Event Manager', () => {
   describe('off()', () => {
     it('should stop listening to an event', () => {
       let cnt = 0;
+      const EVENTS = { EVENT_A: 'event-a' };
       class Hub extends EventManager {}
-      const hub = new Hub();
+      const hub = new Hub(EVENTS);
       const listener = (data, next) => {
         cnt++;
         expect(data.a).toEqual('a');
       };
-      hub.on('event-a', listener);
-      hub.emit('event-a', { a: 'a' });
+      hub.on(EVENTS.EVENT_A, listener);
+      hub.emit(EVENTS.EVENT_A, { a: 'a' });
       expect(cnt).toEqual(1);
-      hub.off('event-a', listener);
-      hub.emit('event-a', { a: 'a' });
+      hub.off(EVENTS.EVENT_A, listener);
+      hub.emit(EVENTS.EVENT_A, { a: 'a' });
       expect(cnt).toEqual(1);
     });
   });
@@ -163,31 +172,36 @@ describe('Event Manager', () => {
   describe('offAll()', () => {
     it('should stop listening to all event', () => {
       let cnt = 0;
+      const EVENTS = {
+        EVENT_A: 'event-a',
+        EVENT_B: 'event-b',
+        EVENT_C: 'event-c'
+      };
       class Hub extends EventManager {}
-      const hub = new Hub();
+      const hub = new Hub(EVENTS);
       const listenerA1 = () => { cnt++; };
       const listenerA2 = () => { cnt++; };
       const listenerB = () => { cnt++; };
       const listenerC = () => { cnt++; };
-      hub.on('event-a', listenerA1);
-      hub.on('event-a', listenerA2);
-      hub.on('event-b', listenerB);
-      hub.on('event-c', listenerC);
-      hub.emit('event-a');
+      hub.on(EVENTS.EVENT_A, listenerA1);
+      hub.on(EVENTS.EVENT_A, listenerA2);
+      hub.on(EVENTS.EVENT_B, listenerB);
+      hub.on(EVENTS.EVENT_C, listenerC);
+      hub.emit(EVENTS.EVENT_A);
       expect(cnt).toEqual(2);
-      hub.emit('event-b');
+      hub.emit(EVENTS.EVENT_B);
       expect(cnt).toEqual(3);
-      hub.emit('event-c');
+      hub.emit(EVENTS.EVENT_C);
       expect(cnt).toEqual(4);
-      hub.offAll('event-a');
-      hub.emit('event-a');
+      hub.offAll(EVENTS.EVENT_A);
+      hub.emit(EVENTS.EVENT_A);
       expect(cnt).toEqual(4);
-      hub.emit('event-b');
+      hub.emit(EVENTS.EVENT_B);
       expect(cnt).toEqual(5);
       hub.offAll();
-      hub.emit('event-b');
+      hub.emit(EVENTS.EVENT_B);
       expect(cnt).toEqual(5);
-      hub.emit('event-c');
+      hub.emit(EVENTS.EVENT_C);
       expect(cnt).toEqual(5);
     });
   });

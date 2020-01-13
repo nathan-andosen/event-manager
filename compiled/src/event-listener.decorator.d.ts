@@ -4,6 +4,6 @@ interface IEventListenerArgs {
     initFn?: string;
     destroyFn?: string;
 }
-export declare function EventListener(eventName: string, eventClass?: string): any;
+export declare function EventListener(eventName: string, classObject?: Object): any;
 export declare function EventListener(args: IEventListenerArgs): any;
 export {};

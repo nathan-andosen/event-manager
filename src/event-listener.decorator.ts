@@ -17,14 +17,33 @@ interface IEventListenerArgs {
  * @param {*} classInstance
  * @returns {string}
  */
-function getClassPropertyName(args: IEventListenerArgs, instance: any): string {
+function getClassPropertyName(args: IEventListenerArgs, instance: any)
+: string[] {
   if (!args.eventClass) return null;
+  const keys: string[] = [];
   const classKeys = Object.keys(instance);
   for (const key of classKeys) {
-    if (instance[key].constructor.name === args.eventClass) return key;
+    if (instance[key].constructor.name === args.eventClass) keys.push(key);
   }
+  if (keys.length) return keys;
   throw new Error('@EventListener: Unable to find class with name '
     + args.eventClass);
+}
+
+
+/**
+ * Determine if the class is the EventManager class we want to subscribe too
+ *
+ * @param {EventManager} obj
+ * @param {string} eventName
+ * @param {boolean} [ignoreName=false]
+ * @returns
+ */
+function isEventManagerClassWeWant(obj: EventManager, eventName: string,
+ignoreName = false) {
+  if (!obj) return false;
+  if (!ignoreName && obj.constructor.name !== EventManager.name) return false;
+  return (obj.eventExists && obj.eventExists(eventName));
 }
 
 
@@ -36,21 +55,48 @@ function getClassPropertyName(args: IEventListenerArgs, instance: any): string {
  * @returns {*}
  */
 function getEventClass(args: IEventListenerArgs, classInstance: any): any {
-  const propertyName = getClassPropertyName(args, classInstance);
-  const instance = (propertyName) ? classInstance[propertyName] : classInstance;
-  if (!instance.on) {
-    // try and find a property of type EventManager
-    const propNames = Object.getOwnPropertyNames(instance);
+  let propertyNames = getClassPropertyName(args, classInstance);
+  const eventClass = { foundCnt: 0, obj: null };
+  if (propertyNames === null) {
+    if (isEventManagerClassWeWant(classInstance, args.eventName, true)) {
+      return classInstance;
+    }
+    // the EventManager class we are trying to find might just be a property
+    // on the class
+    propertyNames = Object.getOwnPropertyNames(classInstance);
+  }
+  for (const propName of propertyNames) {
+    // const propInstance = (propName) ? classInstance[propName] : classInstance;
+    const propInstance = classInstance[propName];
+    // the property itself might be of type EventManager
+    if (isEventManagerClassWeWant(propInstance, args.eventName)) {
+      eventClass.obj = propInstance;
+      eventClass.foundCnt++;
+    }
+    // or the property is a class that extends EventManager
+     else if (isEventManagerClassWeWant(propInstance, args.eventName, true)) {
+      eventClass.obj = propInstance;
+      eventClass.foundCnt++;
+    }
+    // or its a class that has a property in it that is of type EventManager
+    const propNames = Object.getOwnPropertyNames(propInstance);
     for (const propName of propNames) {
-      if (instance[propName] && instance[propName].constructor
-        && instance[propName].constructor.name === EventManager.name) {
-        return instance[propName];
+      if (isEventManagerClassWeWant(propInstance[propName], args.eventName)) {
+        eventClass.obj = propInstance[propName];
+        eventClass.foundCnt++;
       }
     }
-    throw new Error('@EventListener: Class ' + instance.constructor.name
-      + ' must extend EventManager');
   }
-  return instance;
+
+  if (eventClass.foundCnt > 1) {
+    throw new Error('@EventListener: Found 2 or more classes using same event'
+      + ' names (' + args.eventName + ')');
+  }
+  if (!eventClass.obj) {
+    throw new Error('@EventListener: No EventManager class found that emits'
+      + ' event: ' + args.eventName);
+  }
+  return eventClass.obj;
 }
 
 
@@ -98,9 +144,9 @@ function validateFunctionsExist(args: IEventListenerArgs, target: any) {
  * @param {string} [arg2]
  * @returns
  */
-export function EventListener(eventName: string, eventClass?: string): any;
+export function EventListener(eventName: string, classObject?: Object): any;
 export function EventListener(args: IEventListenerArgs): any;
-export function EventListener(arg1: string | IEventListenerArgs, arg2?: string) {
+export function EventListener(arg1: string | IEventListenerArgs, arg2?: Function) {
   return (target: any, propertyKey: string, descriptor: PropertyDescriptor) => {
     if (!descriptor || typeof descriptor.value !== 'function') {
       throw new Error('@EventListener: Decorator must be applied to a method');
@@ -112,8 +158,14 @@ export function EventListener(arg1: string | IEventListenerArgs, arg2?: string) 
         + 'or IEventListenerArgs');
     }
 
-    const params = (typeof arg1 === 'string')
-      ? { eventName: arg1, eventClass: arg2 } : arg1;
+    let params: IEventListenerArgs;
+    if (typeof arg1 === 'string') {
+      params = { eventName: arg1, eventClass: (arg2) ? arg2.name : null };
+    } else {
+      params = arg1;
+    }
+
+
     validateFunctionsExist(params, target);
     const initFnName = (params.initFn || 'ngOnInit');
     const destroyFnName = (params.destroyFn || 'ngOnDestroy');

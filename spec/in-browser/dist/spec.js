@@ -173,10 +173,13 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var src_1 = __webpack_require__(/*! ../../src */ "./src/index.ts");
 describe('Event Listener Decorator', function () {
     it('should bind and unbind to events', function () {
+        var HUB_EVENTS = {
+            CNT_UP: 'cnt-up'
+        };
         var Hub = (function (_super) {
             __extends(Hub, _super);
             function Hub() {
-                var _this = _super.call(this) || this;
+                var _this = _super.call(this, HUB_EVENTS) || this;
                 _this.cnt = 0;
                 _this.init();
                 return _this;
@@ -188,7 +191,7 @@ describe('Event Listener Decorator', function () {
             };
             __decorate([
                 src_1.EventListener({
-                    eventName: 'cnt-up',
+                    eventName: HUB_EVENTS.CNT_UP,
                     initFn: 'init',
                     destroyFn: 'destroy'
                 }),
@@ -199,17 +202,20 @@ describe('Event Listener Decorator', function () {
             return Hub;
         }(src_1.EventManager));
         var hub = new Hub();
-        hub.emit('cnt-up');
+        hub.emit(HUB_EVENTS.CNT_UP);
         expect(hub.cnt).toEqual(1);
         hub.destroy();
-        hub.emit('cnt-up');
+        hub.emit(HUB_EVENTS.CNT_UP);
         expect(hub.cnt).toEqual(1);
     });
     it('should use default angular init and destroy functions', function () {
+        var HUB_EVENTS = {
+            CNT_UP: 'cnt-up'
+        };
         var Hub = (function (_super) {
             __extends(Hub, _super);
             function Hub() {
-                var _this = _super !== null && _super.apply(this, arguments) || this;
+                var _this = _super.call(this, HUB_EVENTS) || this;
                 _this.cnt = 0;
                 return _this;
             }
@@ -219,7 +225,7 @@ describe('Event Listener Decorator', function () {
                 this.cnt++;
             };
             __decorate([
-                src_1.EventListener('cnt-up'),
+                src_1.EventListener(HUB_EVENTS.CNT_UP),
                 __metadata("design:type", Function),
                 __metadata("design:paramtypes", []),
                 __metadata("design:returntype", void 0)
@@ -228,17 +234,20 @@ describe('Event Listener Decorator', function () {
         }(src_1.EventManager));
         var hub = new Hub();
         hub['ngOnInit']();
-        hub.emit('cnt-up');
+        hub.emit(HUB_EVENTS.CNT_UP);
         expect(hub.cnt).toEqual(2);
         hub['ngOnDestroy']();
-        hub.emit('cnt-up');
+        hub.emit(HUB_EVENTS.CNT_UP);
         expect(hub.cnt).toEqual(2);
     });
     it('should use property class', function () {
+        var HUB_EVENTS = {
+            CNT_UP: 'cnt-up'
+        };
         var EventHub = (function (_super) {
             __extends(EventHub, _super);
             function EventHub() {
-                return _super !== null && _super.apply(this, arguments) || this;
+                return _super.call(this, HUB_EVENTS) || this;
             }
             return EventHub;
         }(src_1.EventManager));
@@ -254,11 +263,11 @@ describe('Event Listener Decorator', function () {
                 this.cnt++;
             };
             MyTest.prototype.count = function () {
-                this.eventHub.emit('cnt-up');
+                this.eventHub.emit(HUB_EVENTS.CNT_UP);
             };
             __decorate([
                 src_1.EventListener({
-                    eventName: 'cnt-up',
+                    eventName: HUB_EVENTS.CNT_UP,
                     eventClass: EventHub.name,
                     initFn: 'init',
                     destroyFn: 'destroy'
@@ -281,10 +290,13 @@ describe('Event Listener Decorator', function () {
     it('should throw error as class name cant be found', function () {
         var err = null;
         try {
+            var HUB_EVENTS_1 = {
+                CNT_UP: 'cnt-up'
+            };
             var EventHub = (function (_super) {
                 __extends(EventHub, _super);
                 function EventHub() {
-                    return _super !== null && _super.apply(this, arguments) || this;
+                    return _super.call(this, HUB_EVENTS_1) || this;
                 }
                 return EventHub;
             }(src_1.EventManager));
@@ -300,11 +312,11 @@ describe('Event Listener Decorator', function () {
                     this.cnt++;
                 };
                 MyTest.prototype.count = function () {
-                    this.eventHub.emit('cnt-up');
+                    this.eventHub.emit(HUB_EVENTS_1.CNT_UP);
                 };
                 __decorate([
                     src_1.EventListener({
-                        eventName: 'cnt-up',
+                        eventName: HUB_EVENTS_1.CNT_UP,
                         eventClass: 'fake-name',
                         initFn: 'init',
                         destroyFn: 'destroy'
@@ -355,15 +367,18 @@ describe('Event Listener Decorator', function () {
             err = e;
         }
         expect(err.message)
-            .toContain('@EventListener: Class Hub must extend EventManager');
+            .toContain('@EventListener: No EventManager class');
     });
     it('should throw error as decorator is not on a method', function () {
         var err = null;
         try {
+            var HUB_EVENTS_2 = {
+                CNT_UP: 'cnt-up'
+            };
             var Hub = (function (_super) {
                 __extends(Hub, _super);
                 function Hub() {
-                    var _this = _super.call(this) || this;
+                    var _this = _super.call(this, HUB_EVENTS_2) || this;
                     _this.cnt = 0;
                     _this.cntListener = true;
                     _this.init();
@@ -373,7 +388,7 @@ describe('Event Listener Decorator', function () {
                 Hub.prototype.destroy = function () { };
                 __decorate([
                     src_1.EventListener({
-                        eventName: 'cnt-up',
+                        eventName: HUB_EVENTS_2.CNT_UP,
                         initFn: 'init',
                         destroyFn: 'destroy'
                     }),
@@ -392,10 +407,13 @@ describe('Event Listener Decorator', function () {
     it('should throw error as args are not set', function () {
         var err = null;
         try {
+            var HUB_EVENTS_3 = {
+                CNT_UP: 'cnt-up'
+            };
             var Hub = (function (_super) {
                 __extends(Hub, _super);
                 function Hub() {
-                    var _this = _super.call(this) || this;
+                    var _this = _super.call(this, HUB_EVENTS_3) || this;
                     _this.cnt = 0;
                     _this.init();
                     return _this;
@@ -421,10 +439,18 @@ describe('Event Listener Decorator', function () {
             + 'type string or IEventListenerArgs');
     });
     it('should bind and unbind to events on the events property', function () {
+        var HUB_EVENTS = {
+            CNT_UP: 'cnt-up'
+        };
+        var USER_EVENTS = {
+            ADDED: 'user-added'
+        };
         var Hub = (function () {
             function Hub() {
-                this.events = new src_1.EventManager();
+                this.events = new src_1.EventManager(HUB_EVENTS);
+                this.userEvents = new src_1.EventManager(USER_EVENTS);
                 this.cnt = 0;
+                this.usersAdded = 0;
                 this.init();
             }
             Hub.prototype.init = function () { };
@@ -432,9 +458,12 @@ describe('Event Listener Decorator', function () {
             Hub.prototype.cntListener = function () {
                 this.cnt++;
             };
+            Hub.prototype.usersAddListener = function () {
+                this.usersAdded++;
+            };
             __decorate([
                 src_1.EventListener({
-                    eventName: 'cnt-up',
+                    eventName: HUB_EVENTS.CNT_UP,
                     initFn: 'init',
                     destroyFn: 'destroy'
                 }),
@@ -442,16 +471,31 @@ describe('Event Listener Decorator', function () {
                 __metadata("design:paramtypes", []),
                 __metadata("design:returntype", void 0)
             ], Hub.prototype, "cntListener", null);
+            __decorate([
+                src_1.EventListener({
+                    eventName: USER_EVENTS.ADDED,
+                    initFn: 'init',
+                    destroyFn: 'destroy'
+                }),
+                __metadata("design:type", Function),
+                __metadata("design:paramtypes", []),
+                __metadata("design:returntype", void 0)
+            ], Hub.prototype, "usersAddListener", null);
             return Hub;
         }());
         var hub = new Hub();
-        hub.events.emit('cnt-up');
+        hub.events.emit(HUB_EVENTS.CNT_UP);
         expect(hub.cnt).toEqual(1);
+        hub.userEvents.emit(USER_EVENTS.ADDED);
+        expect(hub.usersAdded).toEqual(1);
         hub.destroy();
-        hub.events.emit('cnt-up');
+        hub.events.emit(HUB_EVENTS.CNT_UP);
         expect(hub.cnt).toEqual(1);
     });
     it('should bind and unbind to events on random name property', function () {
+        var HUB_EVENTS = {
+            CNT_UP: 'cnt-up'
+        };
         var EventFake = (function () {
             function EventFake() {
             }
@@ -462,7 +506,7 @@ describe('Event Listener Decorator', function () {
         var Hub = (function () {
             function Hub() {
                 this.someProp = new EventFake();
-                this.randomName = new src_1.EventManager();
+                this.randomName = new src_1.EventManager(HUB_EVENTS);
                 this.cnt = 0;
                 this.init();
             }
@@ -473,7 +517,7 @@ describe('Event Listener Decorator', function () {
             };
             __decorate([
                 src_1.EventListener({
-                    eventName: 'cnt-up',
+                    eventName: HUB_EVENTS.CNT_UP,
                     initFn: 'init',
                     destroyFn: 'destroy'
                 }),
@@ -484,10 +528,10 @@ describe('Event Listener Decorator', function () {
             return Hub;
         }());
         var hub = new Hub();
-        hub.randomName.emit('cnt-up');
+        hub.randomName.emit(HUB_EVENTS.CNT_UP);
         expect(hub.cnt).toEqual(1);
         hub.destroy();
-        hub.randomName.emit('cnt-up');
+        hub.randomName.emit(HUB_EVENTS.CNT_UP);
         expect(hub.cnt).toEqual(1);
     });
     it('should throw error as the events property is not of type EventManager', function () {
@@ -521,11 +565,14 @@ describe('Event Listener Decorator', function () {
         catch (e) {
             err = e;
         }
-        expect(err.message).toContain('@EventListener: Class');
+        expect(err.message).toContain('@EventListener: No EventManager class');
     });
     it('should throw error as ngOnDestroy does not exist', function () {
         var err = null;
         try {
+            var HUB_EVENTS_4 = {
+                CNT_UP: 'cnt-up'
+            };
             var Hub = (function (_super) {
                 __extends(Hub, _super);
                 function Hub() {
@@ -538,14 +585,14 @@ describe('Event Listener Decorator', function () {
                     this.cnt++;
                 };
                 __decorate([
-                    src_1.EventListener('cnt-up'),
+                    src_1.EventListener(HUB_EVENTS_4.CNT_UP),
                     __metadata("design:type", Function),
                     __metadata("design:paramtypes", []),
                     __metadata("design:returntype", void 0)
                 ], Hub.prototype, "cntListener", null);
                 return Hub;
             }(src_1.EventManager));
-            var hub = new Hub();
+            var hub = new Hub(HUB_EVENTS_4);
         }
         catch (e) {
             err = e;
@@ -555,6 +602,9 @@ describe('Event Listener Decorator', function () {
     it('should throw error as ngOnInit does not exist', function () {
         var err = null;
         try {
+            var HUB_EVENTS_5 = {
+                CNT_UP: 'cnt-up'
+            };
             var Hub = (function (_super) {
                 __extends(Hub, _super);
                 function Hub() {
@@ -567,14 +617,14 @@ describe('Event Listener Decorator', function () {
                     this.cnt++;
                 };
                 __decorate([
-                    src_1.EventListener('cnt-up'),
+                    src_1.EventListener(HUB_EVENTS_5.CNT_UP),
                     __metadata("design:type", Function),
                     __metadata("design:paramtypes", []),
                     __metadata("design:returntype", void 0)
                 ], Hub.prototype, "cntListener", null);
                 return Hub;
             }(src_1.EventManager));
-            var hub = new Hub();
+            var hub = new Hub(HUB_EVENTS_5);
         }
         catch (e) {
             err = e;
@@ -612,6 +662,118 @@ describe('Event Listener Decorator', function () {
             err = e;
         }
         expect(err.message).toContain('both initFn and destroyFn');
+    });
+    it('should work with multiple classes of same type', function () {
+        var EventFake = (function () {
+            function EventFake() {
+            }
+            EventFake.prototype.on = function () { };
+            return EventFake;
+        }());
+        ;
+        var ONE_EVENTS = {
+            SOMETHING_ADDED: 's1-something-added'
+        };
+        var ServiceOne = (function () {
+            function ServiceOne(e) {
+                this.events = new src_1.EventManager(e);
+            }
+            return ServiceOne;
+        }());
+        var TWO_EVENTS = {
+            SOMETHING_ADDED: 's2-something-added'
+        };
+        var ServiceTwo = (function () {
+            function ServiceTwo(e) {
+                this.events = new src_1.EventManager(e);
+            }
+            return ServiceTwo;
+        }());
+        var Hub = (function () {
+            function Hub() {
+                this.serviceOne = new ServiceOne(ONE_EVENTS);
+                this.fakeEventClass = new EventFake();
+                this.serviceTwoButDifferent = new ServiceTwo(ONE_EVENTS);
+                this.serviceTwo = new ServiceTwo(TWO_EVENTS);
+                this.cnt = 0;
+            }
+            Hub.prototype.ngOnInit = function () { };
+            Hub.prototype.ngOnDestroy = function () { };
+            Hub.prototype.cntListener = function () {
+                this.cnt++;
+            };
+            __decorate([
+                src_1.EventListener(TWO_EVENTS.SOMETHING_ADDED, ServiceTwo),
+                __metadata("design:type", Function),
+                __metadata("design:paramtypes", []),
+                __metadata("design:returntype", void 0)
+            ], Hub.prototype, "cntListener", null);
+            return Hub;
+        }());
+        var hub = new Hub();
+        hub.ngOnInit();
+        hub.serviceTwo.events.emit(TWO_EVENTS.SOMETHING_ADDED);
+        expect(hub.cnt).toEqual(1);
+        hub.serviceOne.events.emit(ONE_EVENTS.SOMETHING_ADDED);
+        expect(hub.cnt).toEqual(1);
+        hub.ngOnDestroy();
+    });
+    it('should throw error as two classes use same event name', function () {
+        var EventFake = (function () {
+            function EventFake() {
+            }
+            EventFake.prototype.on = function () { };
+            return EventFake;
+        }());
+        ;
+        var ONE_EVENTS = {
+            SOMETHING_ADDED: 'something-added'
+        };
+        var ServiceOne = (function () {
+            function ServiceOne(e) {
+                this.events = new src_1.EventManager(e);
+            }
+            return ServiceOne;
+        }());
+        var TWO_EVENTS = {
+            SOMETHING_ADDED: 'something-added'
+        };
+        var ServiceTwo = (function () {
+            function ServiceTwo(e) {
+                this.events = new src_1.EventManager(e);
+            }
+            return ServiceTwo;
+        }());
+        var Hub = (function () {
+            function Hub() {
+                this.serviceOne = new ServiceOne(ONE_EVENTS);
+                this.fakeEventClass = new EventFake();
+                this.serviceTwoButDifferent = new ServiceTwo(ONE_EVENTS);
+                this.serviceTwo = new ServiceTwo(TWO_EVENTS);
+                this.cnt = 0;
+            }
+            Hub.prototype.ngOnInit = function () { };
+            Hub.prototype.ngOnDestroy = function () { };
+            Hub.prototype.cntListener = function () {
+                this.cnt++;
+            };
+            __decorate([
+                src_1.EventListener(TWO_EVENTS.SOMETHING_ADDED, ServiceTwo),
+                __metadata("design:type", Function),
+                __metadata("design:paramtypes", []),
+                __metadata("design:returntype", void 0)
+            ], Hub.prototype, "cntListener", null);
+            return Hub;
+        }());
+        var err;
+        try {
+            var hub = new Hub();
+            hub.ngOnInit();
+        }
+        catch (e) {
+            err = e;
+        }
+        expect(err.message).toContain('Found 2 or more classes');
     });
 });
 
@@ -653,14 +815,15 @@ describe('Event Manager', function () {
                 }
                 return Hub;
             }(src_1.EventManager));
-            var hub = new Hub();
-            hub.on('event-a', function (data, next) {
+            var EVENTS = { EVENT_A: 'event-a' };
+            var hub = new Hub(EVENTS);
+            hub.on(EVENTS.EVENT_A, function (data, next) {
                 cnt++;
                 expect(cnt).toEqual(1);
                 expect(data.a).toEqual('a');
                 done();
             });
-            hub.emit('event-a', { a: 'a' });
+            hub.emit(EVENTS.EVENT_A, { a: 'a' });
         });
         it('should emit event and fire completed', function (done) {
             var cnt = 0;
@@ -671,14 +834,15 @@ describe('Event Manager', function () {
                 }
                 return Hub;
             }(src_1.EventManager));
-            var hub = new Hub();
-            hub.on('event-a', function (data, next) {
+            var EVENTS = { EVENT_A: 'event-a' };
+            var hub = new Hub(EVENTS);
+            hub.on(EVENTS.EVENT_A, function (data, next) {
                 setTimeout(function () {
                     cnt++;
                     next();
                 }, 5);
             });
-            hub.on('event-a', function (data, next) {
+            hub.on(EVENTS.EVENT_A, function (data, next) {
                 setTimeout(function () {
                     cnt++;
                     next().completed(function () {
@@ -687,17 +851,18 @@ describe('Event Manager', function () {
                     });
                 }, 10);
             });
-            hub.emit('event-a');
+            hub.emit(EVENTS.EVENT_A);
         });
     });
     describe('on()', function () {
         it('should set scope', function () {
+            var EVENTS = { EVENT_A: 'event-a' };
             var Hub = (function (_super) {
                 __extends(Hub, _super);
                 function Hub() {
-                    var _this = _super.call(this) || this;
+                    var _this = _super.call(this, EVENTS) || this;
                     _this.cnt = 0;
-                    _this.on('event-a', _this.eventAListener, _this);
+                    _this.on(EVENTS.EVENT_A, _this.eventAListener, _this);
                     return _this;
                 }
                 Hub.prototype.eventAListener = function () {
@@ -706,14 +871,15 @@ describe('Event Manager', function () {
                 return Hub;
             }(src_1.EventManager));
             var hub = new Hub();
-            hub.emit('event-a');
+            hub.emit(EVENTS.EVENT_A);
             expect(hub.cnt).toEqual(1);
-            hub.emit('event-a');
+            hub.emit(EVENTS.EVENT_A);
             expect(hub.cnt).toEqual(2);
         });
         it('should throw error as no event name is passed', function () {
             var err = null;
             try {
+                var EVENTS = { EVENT_A: 'event-a' };
                 var Hub = (function (_super) {
                     __extends(Hub, _super);
                     function Hub() {
@@ -721,7 +887,7 @@ describe('Event Manager', function () {
                     }
                     return Hub;
                 }(src_1.EventManager));
-                var hub = new Hub();
+                var hub = new Hub(EVENTS);
                 hub.on(null, function () { });
             }
             catch (e) {
@@ -732,6 +898,7 @@ describe('Event Manager', function () {
         it('should throw error as no callback function is passed', function () {
             var err = null;
             try {
+                var EVENTS = { EVENT_A: 'event-a' };
                 var Hub = (function (_super) {
                     __extends(Hub, _super);
                     function Hub() {
@@ -739,8 +906,8 @@ describe('Event Manager', function () {
                     }
                     return Hub;
                 }(src_1.EventManager));
-                var hub = new Hub();
-                hub.on('event-a', undefined);
+                var hub = new Hub(EVENTS);
+                hub.on(EVENTS.EVENT_A, undefined);
             }
             catch (e) {
                 err = e;
@@ -751,6 +918,7 @@ describe('Event Manager', function () {
     describe('once()', function () {
         it('should set scope and fire event only once', function () {
             var scope = { a: 1 };
+            var EVENTS = { EVENT_A: 'event-a' };
             var Hub = (function (_super) {
                 __extends(Hub, _super);
                 function Hub() {
@@ -758,18 +926,19 @@ describe('Event Manager', function () {
                 }
                 return Hub;
             }(src_1.EventManager));
-            var hub = new Hub();
-            hub.once('event-a', function () {
+            var hub = new Hub(EVENTS);
+            hub.once(EVENTS.EVENT_A, function () {
                 this.a++;
             }, scope);
-            hub.emit('event-a');
+            hub.emit(EVENTS.EVENT_A);
             expect(scope.a).toEqual(2);
-            hub.emit('event-a');
+            hub.emit(EVENTS.EVENT_A);
             expect(scope.a).toEqual(2);
         });
         it('should throw error as no event name is passed', function () {
             var err = null;
             try {
+                var EVENTS = { EVENT_A: 'event-a' };
                 var Hub = (function (_super) {
                     __extends(Hub, _super);
                     function Hub() {
@@ -777,7 +946,7 @@ describe('Event Manager', function () {
                     }
                     return Hub;
                 }(src_1.EventManager));
-                var hub = new Hub();
+                var hub = new Hub(EVENTS);
                 hub.once(null, function () { });
             }
             catch (e) {
@@ -788,6 +957,7 @@ describe('Event Manager', function () {
         it('should throw error as no callback function is passed', function () {
             var err = null;
             try {
+                var EVENTS = { EVENT_A: 'event-a' };
                 var Hub = (function (_super) {
                     __extends(Hub, _super);
                     function Hub() {
@@ -795,8 +965,8 @@ describe('Event Manager', function () {
                     }
                     return Hub;
                 }(src_1.EventManager));
-                var hub = new Hub();
-                hub.once('event-a', undefined);
+                var hub = new Hub(EVENTS);
+                hub.once(EVENTS.EVENT_A, undefined);
             }
             catch (e) {
                 err = e;
@@ -807,6 +977,7 @@ describe('Event Manager', function () {
     describe('off()', function () {
         it('should stop listening to an event', function () {
             var cnt = 0;
+            var EVENTS = { EVENT_A: 'event-a' };
             var Hub = (function (_super) {
                 __extends(Hub, _super);
                 function Hub() {
@@ -814,22 +985,27 @@ describe('Event Manager', function () {
                 }
                 return Hub;
             }(src_1.EventManager));
-            var hub = new Hub();
+            var hub = new Hub(EVENTS);
             var listener = function (data, next) {
                 cnt++;
                 expect(data.a).toEqual('a');
             };
-            hub.on('event-a', listener);
-            hub.emit('event-a', { a: 'a' });
+            hub.on(EVENTS.EVENT_A, listener);
+            hub.emit(EVENTS.EVENT_A, { a: 'a' });
             expect(cnt).toEqual(1);
-            hub.off('event-a', listener);
-            hub.emit('event-a', { a: 'a' });
+            hub.off(EVENTS.EVENT_A, listener);
+            hub.emit(EVENTS.EVENT_A, { a: 'a' });
             expect(cnt).toEqual(1);
         });
     });
     describe('offAll()', function () {
         it('should stop listening to all event', function () {
             var cnt = 0;
+            var EVENTS = {
+                EVENT_A: 'event-a',
+                EVENT_B: 'event-b',
+                EVENT_C: 'event-c'
+            };
             var Hub = (function (_super) {
                 __extends(Hub, _super);
                 function Hub() {
@@ -837,30 +1013,30 @@ describe('Event Manager', function () {
                 }
                 return Hub;
             }(src_1.EventManager));
-            var hub = new Hub();
+            var hub = new Hub(EVENTS);
             var listenerA1 = function () { cnt++; };
             var listenerA2 = function () { cnt++; };
             var listenerB = function () { cnt++; };
             var listenerC = function () { cnt++; };
-            hub.on('event-a', listenerA1);
-            hub.on('event-a', listenerA2);
-            hub.on('event-b', listenerB);
-            hub.on('event-c', listenerC);
-            hub.emit('event-a');
+            hub.on(EVENTS.EVENT_A, listenerA1);
+            hub.on(EVENTS.EVENT_A, listenerA2);
+            hub.on(EVENTS.EVENT_B, listenerB);
+            hub.on(EVENTS.EVENT_C, listenerC);
+            hub.emit(EVENTS.EVENT_A);
             expect(cnt).toEqual(2);
-            hub.emit('event-b');
+            hub.emit(EVENTS.EVENT_B);
             expect(cnt).toEqual(3);
-            hub.emit('event-c');
+            hub.emit(EVENTS.EVENT_C);
             expect(cnt).toEqual(4);
-            hub.offAll('event-a');
-            hub.emit('event-a');
+            hub.offAll(EVENTS.EVENT_A);
+            hub.emit(EVENTS.EVENT_A);
             expect(cnt).toEqual(4);
-            hub.emit('event-b');
+            hub.emit(EVENTS.EVENT_B);
             expect(cnt).toEqual(5);
             hub.offAll();
-            hub.emit('event-b');
+            hub.emit(EVENTS.EVENT_B);
             expect(cnt).toEqual(5);
-            hub.emit('event-c');
+            hub.emit(EVENTS.EVENT_C);
             expect(cnt).toEqual(5);
         });
     });
@@ -883,31 +1059,64 @@ var event_manager_1 = __webpack_require__(/*! ./event-manager */ "./src/event-ma
 function getClassPropertyName(args, instance) {
     if (!args.eventClass)
         return null;
+    var keys = [];
     var classKeys = Object.keys(instance);
     for (var _i = 0, classKeys_1 = classKeys; _i < classKeys_1.length; _i++) {
         var key = classKeys_1[_i];
         if (instance[key].constructor.name === args.eventClass)
-            return key;
+            keys.push(key);
     }
+    if (keys.length)
+        return keys;
     throw new Error('@EventListener: Unable to find class with name '
         + args.eventClass);
 }
+function isEventManagerClassWeWant(obj, eventName, ignoreName) {
+    if (ignoreName === void 0) { ignoreName = false; }
+    if (!obj)
+        return false;
+    if (!ignoreName && obj.constructor.name !== event_manager_1.EventManager.name)
+        return false;
+    return (obj.eventExists && obj.eventExists(eventName));
+}
 function getEventClass(args, classInstance) {
-    var propertyName = getClassPropertyName(args, classInstance);
-    var instance = (propertyName) ? classInstance[propertyName] : classInstance;
-    if (!instance.on) {
-        var propNames = Object.getOwnPropertyNames(instance);
-        for (var _i = 0, propNames_1 = propNames; _i < propNames_1.length; _i++) {
-            var propName = propNames_1[_i];
-            if (instance[propName] && instance[propName].constructor
-                && instance[propName].constructor.name === event_manager_1.EventManager.name) {
-                return instance[propName];
+    var propertyNames = getClassPropertyName(args, classInstance);
+    var eventClass = { foundCnt: 0, obj: null };
+    if (propertyNames === null) {
+        if (isEventManagerClassWeWant(classInstance, args.eventName, true)) {
+            return classInstance;
+        }
+        propertyNames = Object.getOwnPropertyNames(classInstance);
+    }
+    for (var _i = 0, propertyNames_1 = propertyNames; _i < propertyNames_1.length; _i++) {
+        var propName = propertyNames_1[_i];
+        var propInstance = classInstance[propName];
+        if (isEventManagerClassWeWant(propInstance, args.eventName)) {
+            eventClass.obj = propInstance;
+            eventClass.foundCnt++;
+        }
+        else if (isEventManagerClassWeWant(propInstance, args.eventName, true)) {
+            eventClass.obj = propInstance;
+            eventClass.foundCnt++;
+        }
+        var propNames = Object.getOwnPropertyNames(propInstance);
+        for (var _a = 0, propNames_1 = propNames; _a < propNames_1.length; _a++) {
+            var propName_1 = propNames_1[_a];
+            if (isEventManagerClassWeWant(propInstance[propName_1], args.eventName)) {
+                eventClass.obj = propInstance[propName_1];
+                eventClass.foundCnt++;
             }
         }
-        throw new Error('@EventListener: Class ' + instance.constructor.name
-            + ' must extend EventManager');
     }
-    return instance;
+    if (eventClass.foundCnt > 1) {
+        throw new Error('@EventListener: Found 2 or more classes using same event'
+            + ' names (' + args.eventName + ')');
+    }
+    if (!eventClass.obj) {
+        throw new Error('@EventListener: No EventManager class found that emits'
+            + ' event: ' + args.eventName);
+    }
+    return eventClass.obj;
 }
 function validateFunctionsExist(args, target) {
     if (args.initFn || args.destroyFn) {
@@ -938,8 +1147,13 @@ function EventListener(arg1, arg2) {
             throw new Error('@EventListener: First argument must be of type string '
                 + 'or IEventListenerArgs');
         }
-        var params = (typeof arg1 === 'string')
-            ? { eventName: arg1, eventClass: arg2 } : arg1;
+        var params;
+        if (typeof arg1 === 'string') {
+            params = { eventName: arg1, eventClass: (arg2) ? arg2.name : null };
+        }
+        else {
+            params = arg1;
+        }
         validateFunctionsExist(params, target);
         var initFnName = (params.initFn || 'ngOnInit');
         var destroyFnName = (params.destroyFn || 'ngOnDestroy');
@@ -974,7 +1188,11 @@ exports.EventListener = EventListener;
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var EventManager = (function () {
-    function EventManager() {
+    function EventManager(emittedEvents) {
+        this.emittedEvents = {};
+        for (var key in emittedEvents) {
+            this.emittedEvents[emittedEvents[key]] = true;
+        }
     }
     Object.defineProperty(EventManager.prototype, "events", {
         get: function () {
@@ -986,6 +1204,9 @@ var EventManager = (function () {
         enumerable: true,
         configurable: true
     });
+    EventManager.prototype.eventExists = function (name) {
+        return (this.emittedEvents && this.emittedEvents[name]) ? true : false;
+    };
     EventManager.prototype.emit = function (eventName, data) {
         var _this = this;
         if (!this.events[eventName])

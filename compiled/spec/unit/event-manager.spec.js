@@ -25,14 +25,15 @@ describe('Event Manager', function () {
                 }
                 return Hub;
             }(src_1.EventManager));
-            var hub = new Hub();
-            hub.on('event-a', function (data, next) {
+            var EVENTS = { EVENT_A: 'event-a' };
+            var hub = new Hub(EVENTS);
+            hub.on(EVENTS.EVENT_A, function (data, next) {
                 cnt++;
                 expect(cnt).toEqual(1);
                 expect(data.a).toEqual('a');
                 done();
             });
-            hub.emit('event-a', { a: 'a' });
+            hub.emit(EVENTS.EVENT_A, { a: 'a' });
         });
         it('should emit event and fire completed', function (done) {
             var cnt = 0;
@@ -43,14 +44,15 @@ describe('Event Manager', function () {
                 }
                 return Hub;
             }(src_1.EventManager));
-            var hub = new Hub();
-            hub.on('event-a', function (data, next) {
+            var EVENTS = { EVENT_A: 'event-a' };
+            var hub = new Hub(EVENTS);
+            hub.on(EVENTS.EVENT_A, function (data, next) {
                 setTimeout(function () {
                     cnt++;
                     next();
                 }, 5);
             });
-            hub.on('event-a', function (data, next) {
+            hub.on(EVENTS.EVENT_A, function (data, next) {
                 setTimeout(function () {
                     cnt++;
                     next().completed(function () {
@@ -59,17 +61,18 @@ describe('Event Manager', function () {
                     });
                 }, 10);
             });
-            hub.emit('event-a');
+            hub.emit(EVENTS.EVENT_A);
         });
     });
     describe('on()', function () {
         it('should set scope', function () {
+            var EVENTS = { EVENT_A: 'event-a' };
             var Hub = (function (_super) {
                 __extends(Hub, _super);
                 function Hub() {
-                    var _this = _super.call(this) || this;
+                    var _this = _super.call(this, EVENTS) || this;
                     _this.cnt = 0;
-                    _this.on('event-a', _this.eventAListener, _this);
+                    _this.on(EVENTS.EVENT_A, _this.eventAListener, _this);
                     return _this;
                 }
                 Hub.prototype.eventAListener = function () {
@@ -78,14 +81,15 @@ describe('Event Manager', function () {
                 return Hub;
             }(src_1.EventManager));
             var hub = new Hub();
-            hub.emit('event-a');
+            hub.emit(EVENTS.EVENT_A);
             expect(hub.cnt).toEqual(1);
-            hub.emit('event-a');
+            hub.emit(EVENTS.EVENT_A);
             expect(hub.cnt).toEqual(2);
         });
         it('should throw error as no event name is passed', function () {
             var err = null;
             try {
+                var EVENTS = { EVENT_A: 'event-a' };
                 var Hub = (function (_super) {
                     __extends(Hub, _super);
                     function Hub() {
@@ -93,7 +97,7 @@ describe('Event Manager', function () {
                     }
                     return Hub;
                 }(src_1.EventManager));
-                var hub = new Hub();
+                var hub = new Hub(EVENTS);
                 hub.on(null, function () { });
             }
             catch (e) {
@@ -104,6 +108,7 @@ describe('Event Manager', function () {
         it('should throw error as no callback function is passed', function () {
             var err = null;
             try {
+                var EVENTS = { EVENT_A: 'event-a' };
                 var Hub = (function (_super) {
                     __extends(Hub, _super);
                     function Hub() {
@@ -111,8 +116,8 @@ describe('Event Manager', function () {
                     }
                     return Hub;
                 }(src_1.EventManager));
-                var hub = new Hub();
-                hub.on('event-a', undefined);
+                var hub = new Hub(EVENTS);
+                hub.on(EVENTS.EVENT_A, undefined);
             }
             catch (e) {
                 err = e;
@@ -123,6 +128,7 @@ describe('Event Manager', function () {
     describe('once()', function () {
         it('should set scope and fire event only once', function () {
             var scope = { a: 1 };
+            var EVENTS = { EVENT_A: 'event-a' };
             var Hub = (function (_super) {
                 __extends(Hub, _super);
                 function Hub() {
@@ -130,18 +136,19 @@ describe('Event Manager', function () {
                 }
                 return Hub;
             }(src_1.EventManager));
-            var hub = new Hub();
-            hub.once('event-a', function () {
+            var hub = new Hub(EVENTS);
+            hub.once(EVENTS.EVENT_A, function () {
                 this.a++;
             }, scope);
-            hub.emit('event-a');
+            hub.emit(EVENTS.EVENT_A);
             expect(scope.a).toEqual(2);
-            hub.emit('event-a');
+            hub.emit(EVENTS.EVENT_A);
             expect(scope.a).toEqual(2);
         });
         it('should throw error as no event name is passed', function () {
             var err = null;
             try {
+                var EVENTS = { EVENT_A: 'event-a' };
                 var Hub = (function (_super) {
                     __extends(Hub, _super);
                     function Hub() {
@@ -149,7 +156,7 @@ describe('Event Manager', function () {
                     }
                     return Hub;
                 }(src_1.EventManager));
-                var hub = new Hub();
+                var hub = new Hub(EVENTS);
                 hub.once(null, function () { });
             }
             catch (e) {
@@ -160,6 +167,7 @@ describe('Event Manager', function () {
         it('should throw error as no callback function is passed', function () {
             var err = null;
             try {
+                var EVENTS = { EVENT_A: 'event-a' };
                 var Hub = (function (_super) {
                     __extends(Hub, _super);
                     function Hub() {
@@ -167,8 +175,8 @@ describe('Event Manager', function () {
                     }
                     return Hub;
                 }(src_1.EventManager));
-                var hub = new Hub();
-                hub.once('event-a', undefined);
+                var hub = new Hub(EVENTS);
+                hub.once(EVENTS.EVENT_A, undefined);
             }
             catch (e) {
                 err = e;
@@ -179,6 +187,7 @@ describe('Event Manager', function () {
     describe('off()', function () {
         it('should stop listening to an event', function () {
             var cnt = 0;
+            var EVENTS = { EVENT_A: 'event-a' };
             var Hub = (function (_super) {
                 __extends(Hub, _super);
                 function Hub() {
@@ -186,22 +195,27 @@ describe('Event Manager', function () {
                 }
                 return Hub;
             }(src_1.EventManager));
-            var hub = new Hub();
+            var hub = new Hub(EVENTS);
             var listener = function (data, next) {
                 cnt++;
                 expect(data.a).toEqual('a');
             };
-            hub.on('event-a', listener);
-            hub.emit('event-a', { a: 'a' });
+            hub.on(EVENTS.EVENT_A, listener);
+            hub.emit(EVENTS.EVENT_A, { a: 'a' });
             expect(cnt).toEqual(1);
-            hub.off('event-a', listener);
-            hub.emit('event-a', { a: 'a' });
+            hub.off(EVENTS.EVENT_A, listener);
+            hub.emit(EVENTS.EVENT_A, { a: 'a' });
             expect(cnt).toEqual(1);
         });
     });
     describe('offAll()', function () {
         it('should stop listening to all event', function () {
             var cnt = 0;
+            var EVENTS = {
+                EVENT_A: 'event-a',
+                EVENT_B: 'event-b',
+                EVENT_C: 'event-c'
+            };
             var Hub = (function (_super) {
                 __extends(Hub, _super);
                 function Hub() {
@@ -209,30 +223,30 @@ describe('Event Manager', function () {
                 }
                 return Hub;
             }(src_1.EventManager));
-            var hub = new Hub();
+            var hub = new Hub(EVENTS);
             var listenerA1 = function () { cnt++; };
             var listenerA2 = function () { cnt++; };
             var listenerB = function () { cnt++; };
             var listenerC = function () { cnt++; };
-            hub.on('event-a', listenerA1);
-            hub.on('event-a', listenerA2);
-            hub.on('event-b', listenerB);
-            hub.on('event-c', listenerC);
-            hub.emit('event-a');
+            hub.on(EVENTS.EVENT_A, listenerA1);
+            hub.on(EVENTS.EVENT_A, listenerA2);
+            hub.on(EVENTS.EVENT_B, listenerB);
+            hub.on(EVENTS.EVENT_C, listenerC);
+            hub.emit(EVENTS.EVENT_A);
             expect(cnt).toEqual(2);
-            hub.emit('event-b');
+            hub.emit(EVENTS.EVENT_B);
             expect(cnt).toEqual(3);
-            hub.emit('event-c');
+            hub.emit(EVENTS.EVENT_C);
             expect(cnt).toEqual(4);
-            hub.offAll('event-a');
-            hub.emit('event-a');
+            hub.offAll(EVENTS.EVENT_A);
+            hub.emit(EVENTS.EVENT_A);
             expect(cnt).toEqual(4);
-            hub.emit('event-b');
+            hub.emit(EVENTS.EVENT_B);
             expect(cnt).toEqual(5);
             hub.offAll();
-            hub.emit('event-b');
+            hub.emit(EVENTS.EVENT_B);
             expect(cnt).toEqual(5);
-            hub.emit('event-c');
+            hub.emit(EVENTS.EVENT_C);
             expect(cnt).toEqual(5);
         });
     });

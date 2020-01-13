@@ -1,4 +1,3 @@
-
 type ICallbackFn = (data?: any, next?: INextFn) => void;
 interface IEventData {
   fn: ICallbackFn;
@@ -17,6 +16,7 @@ export type INextFn = () => { completed: (cb: () => void) => void };
  * @class EventManager
  */
 export class EventManager {
+  private emittedEvents: { [key: string]: boolean };
 
   // subscribed events
   private _events: { [eventName: string]: IEventData[] };
@@ -25,6 +25,33 @@ export class EventManager {
   }
   private get events(): { [eventName: string]: IEventData[] } {
     return (this._events || (this._events = {}));
+  }
+
+
+  /**
+   * Creates an instance of EventManager.
+   *
+   * @param {{ [key: string]: string }} emittedEvents The possible events that
+   * can be emitted from this manager
+   * @memberof EventManager
+   */
+  constructor(emittedEvents: { [key: string]: string }) {
+    this.emittedEvents = {};
+    for (const key in emittedEvents) {
+      this.emittedEvents[emittedEvents[key]] = true;
+    }
+  }
+
+
+  /**
+   * Determine if an event exists within this manager
+   *
+   * @param {string} name
+   * @returns {boolean}
+   * @memberof EventManager
+   */
+  eventExists(name: string): boolean {
+    return (this.emittedEvents && this.emittedEvents[name]) ? true : false;
   }
 
 

@@ -4,31 +4,64 @@ var event_manager_1 = require("./event-manager");
 function getClassPropertyName(args, instance) {
     if (!args.eventClass)
         return null;
+    var keys = [];
     var classKeys = Object.keys(instance);
     for (var _i = 0, classKeys_1 = classKeys; _i < classKeys_1.length; _i++) {
         var key = classKeys_1[_i];
         if (instance[key].constructor.name === args.eventClass)
-            return key;
+            keys.push(key);
     }
+    if (keys.length)
+        return keys;
     throw new Error('@EventListener: Unable to find class with name '
         + args.eventClass);
 }
+function isEventManagerClassWeWant(obj, eventName, ignoreName) {
+    if (ignoreName === void 0) { ignoreName = false; }
+    if (!obj)
+        return false;
+    if (!ignoreName && obj.constructor.name !== event_manager_1.EventManager.name)
+        return false;
+    return (obj.eventExists && obj.eventExists(eventName));
+}
 function getEventClass(args, classInstance) {
-    var propertyName = getClassPropertyName(args, classInstance);
-    var instance = (propertyName) ? classInstance[propertyName] : classInstance;
-    if (!instance.on) {
-        var propNames = Object.getOwnPropertyNames(instance);
-        for (var _i = 0, propNames_1 = propNames; _i < propNames_1.length; _i++) {
-            var propName = propNames_1[_i];
-            if (instance[propName] && instance[propName].constructor
-                && instance[propName].constructor.name === event_manager_1.EventManager.name) {
-                return instance[propName];
+    var propertyNames = getClassPropertyName(args, classInstance);
+    var eventClass = { foundCnt: 0, obj: null };
+    if (propertyNames === null) {
+        if (isEventManagerClassWeWant(classInstance, args.eventName, true)) {
+            return classInstance;
+        }
+        propertyNames = Object.getOwnPropertyNames(classInstance);
+    }
+    for (var _i = 0, propertyNames_1 = propertyNames; _i < propertyNames_1.length; _i++) {
+        var propName = propertyNames_1[_i];
+        var propInstance = classInstance[propName];
+        if (isEventManagerClassWeWant(propInstance, args.eventName)) {
+            eventClass.obj = propInstance;
+            eventClass.foundCnt++;
+        }
+        else if (isEventManagerClassWeWant(propInstance, args.eventName, true)) {
+            eventClass.obj = propInstance;
+            eventClass.foundCnt++;
+        }
+        var propNames = Object.getOwnPropertyNames(propInstance);
+        for (var _a = 0, propNames_1 = propNames; _a < propNames_1.length; _a++) {
+            var propName_1 = propNames_1[_a];
+            if (isEventManagerClassWeWant(propInstance[propName_1], args.eventName)) {
+                eventClass.obj = propInstance[propName_1];
+                eventClass.foundCnt++;
             }
         }
-        throw new Error('@EventListener: Class ' + instance.constructor.name
-            + ' must extend EventManager');
     }
-    return instance;
+    if (eventClass.foundCnt > 1) {
+        throw new Error('@EventListener: Found 2 or more classes using same event'
+            + ' names (' + args.eventName + ')');
+    }
+    if (!eventClass.obj) {
+        throw new Error('@EventListener: No EventManager class found that emits'
+            + ' event: ' + args.eventName);
+    }
+    return eventClass.obj;
 }
 function validateFunctionsExist(args, target) {
     if (args.initFn || args.destroyFn) {
@@ -59,8 +92,13 @@ function EventListener(arg1, arg2) {
             throw new Error('@EventListener: First argument must be of type string '
                 + 'or IEventListenerArgs');
         }
-        var params = (typeof arg1 === 'string')
-            ? { eventName: arg1, eventClass: arg2 } : arg1;
+        var params;
+        if (typeof arg1 === 'string') {
+            params = { eventName: arg1, eventClass: (arg2) ? arg2.name : null };
+        }
+        else {
+            params = arg1;
+        }
         validateFunctionsExist(params, target);
         var initFnName = (params.initFn || 'ngOnInit');
         var destroyFnName = (params.destroyFn || 'ngOnDestroy');

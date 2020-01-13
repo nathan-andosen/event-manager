@@ -1,7 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var EventManager = (function () {
-    function EventManager() {
+    function EventManager(emittedEvents) {
+        this.emittedEvents = {};
+        for (var key in emittedEvents) {
+            this.emittedEvents[emittedEvents[key]] = true;
+        }
     }
     Object.defineProperty(EventManager.prototype, "events", {
         get: function () {
@@ -13,6 +17,9 @@ var EventManager = (function () {
         enumerable: true,
         configurable: true
     });
+    EventManager.prototype.eventExists = function (name) {
+        return (this.emittedEvents && this.emittedEvents[name]) ? true : false;
+    };
     EventManager.prototype.emit = function (eventName, data) {
         var _this = this;
         if (!this.events[eventName])

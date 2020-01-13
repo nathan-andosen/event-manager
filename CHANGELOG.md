@@ -1,3 +1,39 @@
+# 2.0.0
+
+### Breaking changes
+
+* When initialising the EventManager class, you must supply an object of the possible events that can be emitted from the manager.
+
+```typescript
+import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
+
+const USER_EVENTS = {
+  SIGN_IN: 'user-sign-in'
+};
+
+export class UserService {
+  events = new EventManager(USER_EVENTS);
+
+  userSignIn() {
+    this.events.emit(USER_EVENTS.SIGN_IN, {});
+  }
+}
+```
+
+* The EventListener decorator's second parameter is now just the class object itself, not the name. 
+
+```typescript
+// Old, version: 1.x.x
+@EventListener(USER_EVENTS.SIGN_IN, UserService.name)
+
+// New, version: 2.x.x
+@EventListener(USER_EVENTS.SIGN_IN, UserService)
+```
+
+### Fixed:
+
+* Fix issue with having multiple properties of the same type on a class. The EventListener decorator could not find the correct one to subscribe too.
+
 # 1.3.1
 
 __Important:__ When using with Angular, your components must implement ngOnInit and ngOnDestroy functions. See fixed issue below.

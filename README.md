@@ -1,4 +1,4 @@
-![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-84.38%25-yellow.svg)
+![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-87.9%25-yellow.svg)
 
 # Event Manager
 
@@ -21,51 +21,51 @@ Event manager is an easy way to manage events in a web applications. Its a basic
 
 ``npm install @thenja/event-manager --save``
 
-2. You have two ways to use the EventManager. Inheritance via _extends_ or composition via _typescript mixins_.
+2. You have two ways to use the EventManager. Inheritance via _extends_ or composition via _property composition_.
 
 ### Inheritance:
 
 ```typescript
 import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
 
+const USER_EVENTS = {
+  SIGN_IN: 'user-sign-in'
+};
+
 export class UserService extends EventManager {
+  constructor() {
+    super(USER_EVENTS);
+  }
+
   userSignIn() {
-    this.emit('user-sign-in', {});
+    this.emit(USER_EVENTS.SIGN_IN, {});
   }
 }
 ```
 
-### Composition with mixin:
-
-```typescript
-import { EventManager, Mixin } from '@thenja/event-manager';
-
-// declartion merging for our mixins
-export interface UserService extends EventManager {}
-
-@Mixin([EventManager])
-export class UserService {
-  userSignIn() {
-    this.emit('user-sign-in', {});
-  }
-}
-```
-
-### Composition with property:
+### Composition with property (recommended):
 
 ```typescript
 import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
 
+const USER_EVENTS = {
+  SIGN_IN: 'user-sign-in'
+};
+
 export class UserService {
-  events = new EventManager();
+  events = new EventManager(USER_EVENTS);
 
   userSignIn() {
-    this.events.emit('user-sign-in', {});
+    this.events.emit(USER_EVENTS.SIGN_IN, {});
   }
 }
 ```
 
 ## Methods / API
+
+### constructor (_emittedEvents: { [key: string]: string }_)
+
+The possible emitted events that the manager can emit.
 
 ### emit (_eventName: string, data?: any_)
 
@@ -89,7 +89,9 @@ Unbind from all events. If you pass in an eventName, it will only unbind all lis
 
 ## @EventListener decorator
 
-The _@EventListener_ decorator is a method decorator and is very useful in Angular components, but can be used anywhere.
+The _@EventListener_ decorator is a method decorator that will automatically subscribe and unsubscribe to events, its very useful in Angular components, but can be used anywhere.
+
+__IMPORTANT:__ If using the EventListener decorator, make event names unique throughout your app. If not, the EventListener decorator will throw an error.
 
 __How it works:__
 
@@ -100,11 +102,11 @@ The decorator can be used in two ways:
 __Two individual arguments:__
 
 ```typescript
-@EventListener(eventName: string, eventClass?: string)
+@EventListener(eventName: string, classObject?: Object)
 ```
 
 * __eventName__ : The name of the emitted event.
-* __eventClass__ : _(optional)_ The constructor name of the class that is emitting the event (view example 1 below in the _Use cases / Examples_ section). If the listener method is listening to internal events that are emitted from within the same class, this can be left blank (view example 2 below in the _Use cases / Examples_ section).
+* __classObject__: _(optional)_ The class that is emitting the event. (view example 1 below in the _Use cases / Examples_ section). If the listener method is listening to internal events that are emitted from within the same class, this can be left blank (view example 2 below in the _Use cases / Examples_ section).
 
 __One object argument:__
 
@@ -121,7 +123,7 @@ __One object argument:__
 ```
 
 * __eventName__ : _Same as above_
-* __eventClass__ : _Same as above_
+* __eventClass__ : The constructor name of the class that is emitting the event.
 * __initFn__ : _[Default = ngOnInit]_ The function that is fired when the component / class is initialised. This is where binding to events will occur. If you want to bind to events when the constructor is fired, view example 3 below in the _Use cases / Examples_ section.
 * __destroyFn__ : _[Default = ngOnDestroy]_ The function that is fired when the component is destroyed. This is where unbinding from events will occur.
 
@@ -135,11 +137,19 @@ _In this example, we have a service that is injected into an Angular component, 
 ```typescript
 import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
 
+const USER_EVENTS = {
+  SIGN_IN: 'user-sign-in'
+};
+
 // our service which extends EventManager
 export class UserService extends EventManager {
+  constructor() {
+    super(USER_EVENTS);
+  }
+
   userSignIn() {
     const userData = {};
-    this.emit('user-sign-in', userData);
+    this.emit(USER_EVENTS.SIGN_IN, userData);
   }
 }
 
@@ -148,7 +158,42 @@ export class UserService extends EventManager {
 export class HomePageComponent {
   constructor(private userSrv: UserService) {}
 
-  @EventListener('user-sign-in', UserService.name)
+  @EventListener(USER_EVENTS.SIGN_IN, UserService)
+  userSignInListener(userData: any) {
+    // This method will be fired when the user-sign-in event is emitted
+  }
+}
+```
+
+__OR__ you could use composition like:
+
+```typescript
+import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
+
+const USER_EVENTS = {
+  SIGN_IN: 'user-sign-in'
+};
+
+// our service which extends EventManager
+export class UserService {
+  events: EventManager;
+
+  constructor() {
+    this.events = new EventManager(USER_EVENTS);
+  }
+
+  userSignIn() {
+    const userData = {};
+    this.events.emit(USER_EVENTS.SIGN_IN, userData);
+  }
+}
+
+// our angular component
+@Component(...)
+export class HomePageComponent {
+  constructor(private userSrv: UserService) {}
+
+  @EventListener(USER_EVENTS.SIGN_IN, UserService)
   userSignInListener(userData: any) {
     // This method will be fired when the user-sign-in event is emitted
   }
@@ -162,13 +207,21 @@ _In this example, we will listen to internal events that are emitted within the 
 ```typescript
 import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
 
+const USER_EVENTS = {
+  SIGN_IN: 'user-sign-in'
+};
+
 export class UserService extends EventManager {
-  userSignIn() {
-    const userData = {};
-    this.emit('user-sign-in', userData);
+  constructor() {
+    super(USER_EVENTS);
   }
 
-  @EventListener('user-sign-in')
+  userSignIn() {
+    const userData = {};
+    this.emit(USER_EVENTS.SIGN_IN, userData);
+  }
+
+  @EventListener(USER_EVENTS.SIGN_IN)
   userSignInListener(userData: any) {
     // This method will be fired when the user-sign-in event is emitted
   }
@@ -182,9 +235,13 @@ _In this example, we set different init and destroy functions. In this case, we 
 ```typescript
 import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
 
+const USER_EVENTS = {
+  SIGN_IN: 'user-sign-in'
+};
+
 export class UserService extends EventManager {
   constructor() {
-    super();
+    super(USER_EVENTS);
     this.init();
   }
 
@@ -192,7 +249,7 @@ export class UserService extends EventManager {
   destroy();
 
   @EventListener({
-    eventName: 'user-sign-in',
+    eventName: USER_EVENTS.SIGN_IN,
     initFn: 'init',
     destroyFn: 'destroy'
   })
@@ -209,10 +266,14 @@ _In this example, we will run code after all event listeners have finished execu
 ```typescript
 import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
 
+const USER_EVENTS = {
+  SIGN_OUT: 'user-sign-out'
+};
+
 // our user settings service
 class UserSettingsService {
   constructor(private appEventsHub: AppEventsHub) {
-    this.appEventsHub.on('user-signed-out', this.userSignedOutListener, this);
+    this.appEventsHub.on(USER_EVENTS.SIGN_OUT, this.userSignedOutListener, this);
   }
 
   private userSignedOutListener(data, next: INextFn) {
@@ -226,7 +287,7 @@ class UserSettingsService {
 // our user service
 class UserService {
   constructor(private appEventsHub: AppEventsHub) {
-    this.appEventsHub.on('user-signed-out', this.userSignedOutListener, this);
+    this.appEventsHub.on(USER_EVENTS.SIGN_OUT, this.userSignedOutListener, this);
   }
 
   private userSignedOutListener(data, next: INextFn) {
@@ -243,8 +304,12 @@ class UserService {
 
 // our app events hub service
 class AppEventsHub extends EventManager {
+  constructor() {
+    super(USER_EVENTS);
+  }
+
   userSignedOut() {
-    this.emit('user-signed-out');
+    this.emit(USER_EVENTS.SIGN_OUT);
   }
 }
 ```
@@ -254,11 +319,15 @@ class AppEventsHub extends EventManager {
 _Most of the time you will want to set the scope to __this__ so that the keyword __this__ inside your listener function points to your class instance._
 
 ```typescript
+const USER_EVENTS = {
+  SIGN_OUT: 'user-sign-out'
+};
+
 class UserService {
   private userIsSignedIn = true;
   constructor(private appEventsHub: AppEventsHub) {
     // set this as the scope
-    this.appEventsHub.on('user-signed-out', this.userSignedOutListener, this);
+    this.appEventsHub.on(USER_EVENTS.SIGN_OUT, this.userSignedOutListener, this);
   }
 
   private userSignedOutListener(data, next: INextFn) {
