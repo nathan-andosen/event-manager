@@ -505,4 +505,37 @@ describe('Event Listener Decorator', () => {
     }
     expect(err.message).toContain('Found 2 or more classes');
   });
+
+
+  it('should work with undefined properties', () => {
+    const TWO_EVENTS = {
+      SOMETHING_ADDED: 's2-something-added'
+    };
+    class ServiceTwo {
+      events: EventManager;
+      constructor(e: any) { this.events = new EventManager(e); }
+    }
+
+    class Hub {
+      serviceTwo = new ServiceTwo(TWO_EVENTS);
+      notSet: string;
+      setToNull = null;
+      setToZero = 0;
+      public cnt = 0;
+      constructor() {}
+      ngOnInit() {}
+      ngOnDestroy() {}
+
+      @EventListener(TWO_EVENTS.SOMETHING_ADDED, ServiceTwo)
+      protected cntListener() {
+        this.cnt++;
+      }
+    }
+    const hub = new Hub();
+    hub.ngOnInit();
+    hub.serviceTwo.events.emit(TWO_EVENTS.SOMETHING_ADDED);
+    expect(hub.cnt).toEqual(1);
+    expect(hub.cnt).toEqual(1);
+    hub.ngOnDestroy();
+  });
 });

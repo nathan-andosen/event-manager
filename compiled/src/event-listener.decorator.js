@@ -1,6 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 var event_manager_1 = require("./event-manager");
+function isSet(val) {
+    return (typeof val !== 'undefined' && val !== null);
+}
 function getClassPropertyName(args, instance) {
     if (!args.eventClass)
         return null;
@@ -8,8 +11,10 @@ function getClassPropertyName(args, instance) {
     var classKeys = Object.keys(instance);
     for (var _i = 0, classKeys_1 = classKeys; _i < classKeys_1.length; _i++) {
         var key = classKeys_1[_i];
-        if (instance[key].constructor.name === args.eventClass)
+        if (isSet(instance[key])
+            && instance[key].constructor.name === args.eventClass) {
             keys.push(key);
+        }
     }
     if (keys.length)
         return keys;

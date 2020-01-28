@@ -5,5 +5,4 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(require("./event-manager"));
 __export(require("./event-listener.decorator"));
-__export(require("./mixin.decorator"));
 //# sourceMappingURL=index.js.map

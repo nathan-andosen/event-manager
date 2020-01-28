@@ -9,6 +9,11 @@ interface IEventListenerArgs {
 }
 
 
+function isSet(val: any): boolean {
+  return (typeof val !== 'undefined' && val !== null);
+}
+
+
 /**
  * Get the property name that points to the class that extends or uses the
  * EventManager class
@@ -23,7 +28,10 @@ function getClassPropertyName(args: IEventListenerArgs, instance: any)
   const keys: string[] = [];
   const classKeys = Object.keys(instance);
   for (const key of classKeys) {
-    if (instance[key].constructor.name === args.eventClass) keys.push(key);
+    if (isSet(instance[key])
+    && instance[key].constructor.name === args.eventClass) {
+      keys.push(key);
+    }
   }
   if (keys.length) return keys;
   throw new Error('@EventListener: Unable to find class with name '

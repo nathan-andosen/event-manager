@@ -1,3 +1,13 @@
+# [2.0.1] - 2020-01-29
+
+### Removed:
+
+* Removed the mixin decorator and helpers as they can no longer be used in version 2.x.x
+
+### Fixed:
+
+* Fixed error being thrown when properties of a class are set to undefined
+
 # 2.0.0
 
 ### Breaking changes

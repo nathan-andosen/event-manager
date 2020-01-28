@@ -1,4 +1,4 @@
-![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-87.9%25-yellow.svg)
+![Test Coverage-shield-badge-1](https://img.shields.io/badge/Test%20Coverage-100%25-brightgreen.svg)
 
 # Event Manager
 
@@ -28,6 +28,7 @@ Event manager is an easy way to manage events in a web applications. Its a basic
 ```typescript
 import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
 
+// Important: event names have to be unique for the whole application
 const USER_EVENTS = {
   SIGN_IN: 'user-sign-in'
 };
@@ -41,6 +42,9 @@ export class UserService extends EventManager {
     this.emit(USER_EVENTS.SIGN_IN, {});
   }
 }
+
+// Now you could listen to events
+userService.on(USER_EVENTS.SIGN_IN, () => {});
 ```
 
 ### Composition with property (recommended):
@@ -48,6 +52,7 @@ export class UserService extends EventManager {
 ```typescript
 import { EventManager, EventListener, INextFn } from '@thenja/event-manager';
 
+// Important: event names have to be unique for the whole application
 const USER_EVENTS = {
   SIGN_IN: 'user-sign-in'
 };
@@ -59,6 +64,9 @@ export class UserService {
     this.events.emit(USER_EVENTS.SIGN_IN, {});
   }
 }
+
+// Now you could listen to events
+userService.events.on(USER_EVENTS.SIGN_IN, () => {});
 ```
 
 ## Methods / API

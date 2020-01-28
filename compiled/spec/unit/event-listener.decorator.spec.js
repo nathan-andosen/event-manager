@@ -627,5 +627,42 @@ describe('Event Listener Decorator', function () {
         }
         expect(err.message).toContain('Found 2 or more classes');
     });
+    it('should work with undefined properties', function () {
+        var TWO_EVENTS = {
+            SOMETHING_ADDED: 's2-something-added'
+        };
+        var ServiceTwo = (function () {
+            function ServiceTwo(e) {
+                this.events = new src_1.EventManager(e);
+            }
+            return ServiceTwo;
+        }());
+        var Hub = (function () {
+            function Hub() {
+                this.serviceTwo = new ServiceTwo(TWO_EVENTS);
+                this.setToNull = null;
+                this.setToZero = 0;
+                this.cnt = 0;
+            }
+            Hub.prototype.ngOnInit = function () { };
+            Hub.prototype.ngOnDestroy = function () { };
+            Hub.prototype.cntListener = function () {
+                this.cnt++;
+            };
+            __decorate([
+                src_1.EventListener(TWO_EVENTS.SOMETHING_ADDED, ServiceTwo),
+                __metadata("design:type", Function),
+                __metadata("design:paramtypes", []),
+                __metadata("design:returntype", void 0)
+            ], Hub.prototype, "cntListener", null);
+            return Hub;
+        }());
+        var hub = new Hub();
+        hub.ngOnInit();
+        hub.serviceTwo.events.emit(TWO_EVENTS.SOMETHING_ADDED);
+        expect(hub.cnt).toEqual(1);
+        expect(hub.cnt).toEqual(1);
+        hub.ngOnDestroy();
+    });
 });
 //# sourceMappingURL=event-listener.decorator.spec.js.map

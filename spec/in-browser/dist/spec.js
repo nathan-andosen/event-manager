@@ -775,6 +775,43 @@ describe('Event Listener Decorator', function () {
         }
         expect(err.message).toContain('Found 2 or more classes');
     });
+    it('should work with undefined properties', function () {
+        var TWO_EVENTS = {
+            SOMETHING_ADDED: 's2-something-added'
+        };
+        var ServiceTwo = (function () {
+            function ServiceTwo(e) {
+                this.events = new src_1.EventManager(e);
+            }
+            return ServiceTwo;
+        }());
+        var Hub = (function () {
+            function Hub() {
+                this.serviceTwo = new ServiceTwo(TWO_EVENTS);
+                this.setToNull = null;
+                this.setToZero = 0;
+                this.cnt = 0;
+            }
+            Hub.prototype.ngOnInit = function () { };
+            Hub.prototype.ngOnDestroy = function () { };
+            Hub.prototype.cntListener = function () {
+                this.cnt++;
+            };
+            __decorate([
+                src_1.EventListener(TWO_EVENTS.SOMETHING_ADDED, ServiceTwo),
+                __metadata("design:type", Function),
+                __metadata("design:paramtypes", []),
+                __metadata("design:returntype", void 0)
+            ], Hub.prototype, "cntListener", null);
+            return Hub;
+        }());
+        var hub = new Hub();
+        hub.ngOnInit();
+        hub.serviceTwo.events.emit(TWO_EVENTS.SOMETHING_ADDED);
+        expect(hub.cnt).toEqual(1);
+        expect(hub.cnt).toEqual(1);
+        hub.ngOnDestroy();
+    });
 });
 
 
@@ -1056,6 +1093,9 @@ describe('Event Manager', function () {
 
 Object.defineProperty(exports, "__esModule", { value: true });
 var event_manager_1 = __webpack_require__(/*! ./event-manager */ "./src/event-manager.ts");
+function isSet(val) {
+    return (typeof val !== 'undefined' && val !== null);
+}
 function getClassPropertyName(args, instance) {
     if (!args.eventClass)
         return null;
@@ -1063,8 +1103,10 @@ function getClassPropertyName(args, instance) {
     var classKeys = Object.keys(instance);
     for (var _i = 0, classKeys_1 = classKeys; _i < classKeys_1.length; _i++) {
         var key = classKeys_1[_i];
-        if (instance[key].constructor.name === args.eventClass)
+        if (isSet(instance[key])
+            && instance[key].constructor.name === args.eventClass) {
             keys.push(key);
+        }
     }
     if (keys.length)
         return keys;
@@ -1286,36 +1328,6 @@ function __export(m) {
 Object.defineProperty(exports, "__esModule", { value: true });
 __export(__webpack_require__(/*! ./event-manager */ "./src/event-manager.ts"));
 __export(__webpack_require__(/*! ./event-listener.decorator */ "./src/event-listener.decorator.ts"));
-__export(__webpack_require__(/*! ./mixin.decorator */ "./src/mixin.decorator.ts"));
-
-
-/***/ }),
-
-/***/ "./src/mixin.decorator.ts":
-/*!********************************!*\
-  !*** ./src/mixin.decorator.ts ***!
-  \********************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-Object.defineProperty(exports, "__esModule", { value: true });
-function Mixin(classes, ignoreConstructor) {
-    if (ignoreConstructor === void 0) { ignoreConstructor = true; }
-    return function (target) {
-        classes.forEach(function (clas) {
-            Object.getOwnPropertyNames(clas.prototype).forEach(function (name) {
-                if (ignoreConstructor && name === 'constructor')
-                    return;
-                var propDesc = Object.getOwnPropertyDescriptor(clas.prototype, name);
-                Object.defineProperty(target.prototype, name, propDesc);
-            });
-        });
-    };
-}
-exports.Mixin = Mixin;
-;
 
 
 /***/ })
